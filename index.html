@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Real2Sim in HOI: Toward Physically Plausible HOI Reconstruction from Monocular Videos</title>
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon_package/android-chrome-512x512.png">
+
+    <link rel="stylesheet" href="css/bootstrap-4.4.1.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="fonts/avenir-next/stylesheet.css">
+    <link rel="stylesheet" href="fonts/segoe-print/stylesheet.css">
+    <link rel="stylesheet" href="css/window.css">
+    <link rel="stylesheet" href="css/carousel.css">
+    <link rel="stylesheet" href="css/selection_panel.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="css/bulma-slider.min.css">
+    <link rel="stylesheet" href="css/fontawesome.all.min.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/cards.css">
+
+    <script src="js/window.js"></script>
+    <script src="js/carousel.js"></script>
+    <script src="js/selection_panel.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script defer src="js/fontawesome.all.min.js"></script>
+    <script src="js/bulma-carousel.min.js"></script>
+    <script src="js/bulma-slider.min.js"></script>
+    <script src="js/index.js"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+  </head>
+
+  <!-- cover -->
+  <section>
+    <div class="jumbotron text-center mt-0">
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            <h2><b><span class="x-gradient-font">Real2Sim in HOI:</span> Toward Physically Plausible HOI Reconstruction from Monocular Videos</b></h2>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <div id="authors" style="flex-wrap: nowrap; white-space: nowrap;">
+              <div>Yubo Zhao<sup>1,2</sup></div>
+              <div>Yujin Chai<sup>2</sup></div>
+              <div>Yunao Dong<sup>1</sup></div>
+              <div>Chengfeng Zhao<sup>1</sup></div>
+              <div>Zijiao Zeng<sup>2</sup></div>
+              <div>Yuan Liu<sup>1</sup></div>
+              <div>Chi-Keung Tang<sup>1</sup></div>
+            </div>
+            <div id="institution">
+              <div><sup>1</sup>The Hong Kong University of Science and Technology</div>
+              <div><sup>2</sup>Tencent IEG</div>
+            </div>
+            <div id="institution">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- teaser -->
+  <section>
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center">
+          <img src="images/teaser.svg" width="95%">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- abstract -->
+  <section>
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center">
+          <div id="abstract" class="x-gradient-block">
+            <p>Recovering 4D human-object interaction (HOI) from monocular video is a key step toward scalable 3D content creation, embodied AI, and simulation-based learning. Recent methods can reconstruct temporally coherent human and object trajectories, but these trajectories often remain visual artifacts while failing to preserve stable contact, functional manipulation, or physical plausibility when used as reference motions for humanoid-object simulation. This reveals a fundamental interaction gap: HOI reconstruction should not stop at tracking a human and an object, but should recover the relation that makes their motion a coherent interaction.</p>
+            <p>We introduce <i>HA-HOI</i>, a framework for reconstructing physically plausible 4D HOI animation from in-the-wild monocular videos. Instead of treating the human and object as independent entities in an ambiguous monocular 3D space, we propose a <em>human-first, object-follow</em> formulation. The human motion is recovered as the interaction anchor, and the object is reconstructed, aligned, and refined relative to the human action. The resulting kinematic trajectory is then projected into a physics-based humanoid-object simulation, where it acts as a teacher trajectory for stable physical rollout.</p>
+            <p>Across benchmark and in-the-wild videos, <i>HA-HOI</i> improves human-object alignment, contact consistency, temporal stability, and simulation readiness over prior monocular HOI reconstruction methods. By moving beyond visually plausible trajectory recovery toward physically grounded interaction animation, our work takes a step toward turning general monocular HOI videos into scalable demonstrations for humanoid-object behavior.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- pipeline -->
+  <section>
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center">
+          <div class="x-section-title"><div class="x-gradient-font">Pipeline</div></div>
+          <img src="images/pipeline.png" width="95%">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- interactive 3D animation -->
+  <section>
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center">
+          <div class="x-section-title"><div class="x-gradient-font">Interactive 3D Animation</div></div>
+          <p style="margin-bottom: 16px;">Drag to orbit, scroll / pinch to zoom. Use the controls below the viewer to play, pause, and scrub the animation.</p>
+          <model-viewer
+            src="animation/chair_lift.glb"
+            alt="HA-HOI chair lift animation"
+            autoplay
+            animation-name=""
+            camera-controls
+            touch-action="pan-y"
+            shadow-intensity="1"
+            exposure="1"
+            interaction-prompt="auto"
+            style="width: 95%; height: 600px; max-width: 100%; background: #f5f5f7; border-radius: 12px;">
+          </model-viewer>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Qualitative results (draggable overlay) -->
+  <section class="hero" style="padding-bottom: 64px;">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center">
+          <div class="x-section-title"><div class="x-gradient-font">Qualitative Results</div></div>
+
+          <div class="slider-hint">
+            <svg class="slider-hint-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 6l-6 6 6 6V6zm8 12l6-6-6-6v12z"/>
+              <rect x="11" y="3" width="2" height="18" rx="1"/>
+            </svg>
+            <span>Drag the glowing split line(s) left / right to compare methods</span>
+          </div>
+
+          <!-- Hidden SVG filter used by the liquid-glass slider overlays.
+               feTurbulence makes a noise field, feGaussianBlur softens it,
+               feDisplacementMap warps whatever is underneath the glass div.
+               Keep `scale` small (a few px) — large values smear the video
+               into streaks instead of giving a curved-glass refraction. -->
+          <svg width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+            <defs>
+              <filter id="liquid-glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+                <feTurbulence type="fractalNoise" baseFrequency="0.008 0.014" numOctaves="2" seed="7" result="noise"/>
+                <feGaussianBlur in="noise" stdDeviation="3" result="softNoise"/>
+                <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="8" xChannelSelector="R" yChannelSelector="G"/>
+              </filter>
+            </defs>
+          </svg>
+
+          <div class="compare-grid">
+
+            <!-- Row 1: Teasers (2 side by side, same height) -->
+            <div class="compare-row">
+              <!-- Panel 1: Teaser_1 (triple, aspect 16:9) -->
+              <div id="video-comparison-panel-1" class="comparison-panel compare-cell" data-compare-type="triple" style="--ar: 1.778;">
+                <div class="comparison-prompt-box"><div class="prompt-text">Cart push</div></div>
+                <div class="triple-compare" id="video-triple-compare-1">
+                  <canvas id="video-triple-canvas-1"></canvas>
+                  <video id="video-compare-1-1" autoplay muted loop playsinline><source src="video/Teaser_1/Ours.mp4" type="video/mp4"></video>
+                  <video id="video-compare-1-2" autoplay muted loop playsinline><source src="video/Teaser_1/Video.mp4" type="video/mp4"></video>
+                  <video id="video-compare-1-3" autoplay muted loop playsinline><source src="video/Teaser_1/CARI4D.mp4" type="video/mp4"></video>
+                </div>
+                <div class="triple-compare-labels">
+                  <div class="triple-label triple-label-left">👈 Ours</div>
+                  <div class="triple-label triple-label-center">Input Video</div>
+                  <div class="triple-label triple-label-right">CARI4D 👉</div>
+                </div>
+              </div>
+
+              <!-- Panel 2: Teaser_2 (dual, aspect 1:1) -->
+              <div id="video-comparison-panel-2" class="comparison-panel compare-cell" data-compare-type="dual" style="--ar: 1.0;">
+                <div class="comparison-prompt-box"><div class="prompt-text">Squat</div></div>
+                <div class="triple-compare" id="video-triple-compare-2">
+                  <canvas id="video-triple-canvas-2"></canvas>
+                  <video id="video-compare-2-1" autoplay muted loop playsinline><source src="video/Teaser_2/Video.mp4" type="video/mp4"></video>
+                  <video id="video-compare-2-2" autoplay muted loop playsinline><source src="video/Teaser_2/Ours.mp4" type="video/mp4"></video>
+                </div>
+                <div class="triple-compare-labels">
+                  <div class="triple-label triple-label-left">👈 Input Video</div>
+                  <div class="triple-label triple-label-right">Ours 👉</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 2: Fig1_1 + Fig1_2 (Chair lift & Table lift) -->
+            <div class="compare-row">
+              <!-- Panel 3: Fig1_1 (triple, aspect 4:3) -->
+              <div id="video-comparison-panel-3" class="comparison-panel compare-cell" data-compare-type="triple" style="--ar: 1.333;">
+                <div class="comparison-prompt-box"><div class="prompt-text">Chair lift</div></div>
+                <div class="triple-compare" id="video-triple-compare-3">
+                  <canvas id="video-triple-canvas-3"></canvas>
+                  <video id="video-compare-3-1" autoplay muted loop playsinline><source src="video/Fig1_1/Ours.mp4" type="video/mp4"></video>
+                  <video id="video-compare-3-2" autoplay muted loop playsinline><source src="video/Fig1_1/Video.mp4" type="video/mp4"></video>
+                  <video id="video-compare-3-3" autoplay muted loop playsinline><source src="video/Fig1_1/CARI4D.mp4" type="video/mp4"></video>
+                </div>
+                <div class="triple-compare-labels">
+                  <div class="triple-label triple-label-left">👈 Ours</div>
+                  <div class="triple-label triple-label-center">Input Video</div>
+                  <div class="triple-label triple-label-right">CARI4D 👉</div>
+                </div>
+              </div>
+
+              <!-- Panel 4: Fig1_2 (triple, aspect 4:3) -->
+              <div id="video-comparison-panel-4" class="comparison-panel compare-cell" data-compare-type="triple" style="--ar: 1.333;">
+                <div class="comparison-prompt-box"><div class="prompt-text">Table lift</div></div>
+                <div class="triple-compare" id="video-triple-compare-4">
+                  <canvas id="video-triple-canvas-4"></canvas>
+                  <video id="video-compare-4-1" autoplay muted loop playsinline><source src="video/Fig1_2/Ours.mp4" type="video/mp4"></video>
+                  <video id="video-compare-4-2" autoplay muted loop playsinline><source src="video/Fig1_2/Video.mp4" type="video/mp4"></video>
+                  <video id="video-compare-4-3" autoplay muted loop playsinline><source src="video/Fig1_2/CARI4D.mp4" type="video/mp4"></video>
+                </div>
+                <div class="triple-compare-labels">
+                  <div class="triple-label triple-label-left">👈 Ours</div>
+                  <div class="triple-label triple-label-center">Input Video</div>
+                  <div class="triple-label triple-label-right">CARI4D 👉</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 3: Fig1_3 + Appendix_1 (Snatch & Ball hold) -->
+            <div class="compare-row">
+              <!-- Panel 5: Fig1_3 (triple, aspect 9:16 portrait) -->
+              <div id="video-comparison-panel-5" class="comparison-panel compare-cell" data-compare-type="triple" style="--ar: 0.5625;">
+                <div class="comparison-prompt-box"><div class="prompt-text">Snatch</div></div>
+                <div class="triple-compare" id="video-triple-compare-5">
+                  <canvas id="video-triple-canvas-5"></canvas>
+                  <video id="video-compare-5-1" autoplay muted loop playsinline><source src="video/Fig1_3/Ours.mp4" type="video/mp4"></video>
+                  <video id="video-compare-5-2" autoplay muted loop playsinline preload="auto"><source src="video/Fig1_3/Video.mp4" type="video/mp4"></video>
+                  <video id="video-compare-5-3" autoplay muted loop playsinline><source src="video/Fig1_3/CARI4D.mp4" type="video/mp4"></video>
+                </div>
+                <div class="triple-compare-labels">
+                  <div class="triple-label triple-label-left">👈 Ours</div>
+                  <div class="triple-label triple-label-center">Input Video</div>
+                  <div class="triple-label triple-label-right">CARI4D 👉</div>
+                </div>
+              </div>
+
+              <!-- Panel 6: Appendix_1 (dual, aspect ~16:10) -->
+              <div id="video-comparison-panel-6" class="comparison-panel compare-cell" data-compare-type="dual" style="--ar: 1.622;">
+                <div class="comparison-prompt-box"><div class="prompt-text">Ball hold</div></div>
+                <div class="triple-compare" id="video-triple-compare-6">
+                  <canvas id="video-triple-canvas-6"></canvas>
+                  <video id="video-compare-6-1" autoplay muted loop playsinline><source src="video/Appendix_1/Video.mp4" type="video/mp4"></video>
+                  <video id="video-compare-6-2" autoplay muted loop playsinline><source src="video/Appendix_1/Ours.mp4" type="video/mp4"></video>
+                </div>
+                <div class="triple-compare-labels">
+                  <div class="triple-label triple-label-left">👈 Input Video</div>
+                  <div class="triple-label triple-label-right">Ours 👉</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- bottom bar -->
+  <section>
+  <div id="bottombar">
+    <div><b>Real2Sim in HOI: Toward Physically Plausible HOI Reconstruction from Monocular Videos</b></div>
+  </div>
+  </section>
+
+</html>

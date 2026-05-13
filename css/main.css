@@ -1,0 +1,907 @@
+/* Costomize Slider */
+.slider-navigation-next {
+    margin-top: -32px !important;
+    color: white !important;
+    background: #252525 !important;
+}
+
+.slider-navigation-previous {
+    margin-top: -32px !important;
+    color: white !important;
+    background: #252525 !important;
+}
+
+.slider-page {
+    color: white !important;
+    background: #252525 !important;
+}
+
+* {
+    font-family: 'Avenir', 'Avenir Next Cyr', 'Config', 'Microsoft YaHei';
+}
+
+a {
+    color: #6567C9;
+    text-decoration: none;
+}
+  
+a.link:focus, a.link:hover {
+    color: #ff9349;
+    text-decoration: none;
+}
+
+body {
+    position: relative;
+    margin: 0px;
+    padding: 0px;
+}
+
+p {
+    position: relative;
+    margin: 16px;
+    color: black;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: justify;
+}
+
+p span {
+    font-weight: 600;
+}
+
+video {
+    width: 100%;
+    height: auto;
+}
+
+.x-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+}
+
+.x-column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    flex-direction: column;
+}
+
+.x-center-text {
+    margin: 16px 32px;
+    text-align: center;
+}
+
+.x-left-align {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    flex-wrap: nowrap;
+}
+
+.x-right-align {
+    display: flex;
+    align-items: center;
+    justify-content: right;
+    flex-wrap: nowrap;
+}
+
+.x-flex-spacer {
+    flex: 1;
+}
+
+.x-labels {
+    position: absolute;
+    top: 8px;
+    right: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    flex-direction: row-reverse;
+}
+
+.x-label {
+    height: 20px;
+    padding: 0px 6px;
+    margin: 0px 2px;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    background: #6567C9;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.x-button {
+    height: 40px;
+    padding: 0px 14px;
+    background: #6567C9;
+    color: white;
+    border-radius: 50px;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.x-button.small {
+    height: 32px;
+    padding: 0px 12px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.x-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.5);
+}
+
+.x-gradient-font {
+    background: linear-gradient(107.54deg, #000000.39%, #525252 51.23%, #969696 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.x-gradient-block {
+    color: #3f3f3f;
+    background: linear-gradient(107.54deg, #d9d9d9 .39%, #f0f0f0 51.23%, #ffffff 100%);
+    border-radius: 16px;
+}
+
+.x-gradient-border {
+    position: relative;
+    padding: 1px;
+    margin: 3px;
+    border: 3px;
+    background: white;
+    background-clip: padding-box;
+    border: solid border transparent;
+    border-radius: 16px;
+}
+
+.x-gradient-border::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    z-index: -1;
+    margin: -3px;
+    border-radius: 16px;
+    background: linear-gradient(107.54deg, #0078d4 .39%, #8661c5 51.23%, #ff9349 100%);
+}
+
+.x-section-title {
+    margin: 64px 0px 16px 0px;
+    padding-left: 16px;
+    color: black;
+    font-size: 32px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+}
+
+.x-section-title.small {
+    margin: 8px 0px 4px 0px;
+    padding-left: 4px;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.x-note {
+    color: gray;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.x-card {
+    position: relative;
+    margin: 8px;
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.25);
+    transition: all 0.2s ease;
+}
+
+.x-card.clickable {
+    cursor: pointer;
+}
+
+.x-card.clickable:hover {
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.5);
+    transform: scale(1.02);
+}
+
+.x-card .caption {
+    margin: 8px 0px;
+    height: 80px;
+    display: flex;
+    align-items: start;
+    justify-content: center;
+}
+
+.x-handwriting {
+    width: 100%;
+    font-family: 'Segoe Print';
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: black;
+    text-align: justify;
+}
+
+.x-image-prompt {
+    height: calc(100% - 2px);
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+}
+
+.x-image-prompt img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+#main {
+    max-width: 1000px;
+    margin: 0px auto;
+    padding-top: 100px;
+    padding-bottom: 200px;
+}
+
+#logo {
+    width: 70%;
+    min-width: 350px;
+    margin: 0px auto;
+    display: flex;
+    align-items: start;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 600;
+    color: gray;
+}
+
+#title {
+    margin-bottom: 32px;
+    color: black;
+    font-size: 54px;
+    font-weight: 700;
+    /* white-space: nowrap; */
+    text-align: center;
+}
+
+#authors {
+    width: 80%;
+    margin: 8px auto;
+    color: black;
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    /* white-space: nowrap; */
+}
+
+#authors div {
+    margin: 0px 16px;
+}
+
+#institution {
+    margin: 8px 32px;
+    color: black;
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    /* white-space: nowrap; */
+}
+
+#institution div {
+    margin: 0px 16px;
+}
+
+#conference {
+    margin: 16px 32px;
+    color: gray;
+    font-size: 24px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+#abstract {
+    position: relative;
+    margin: 32px;
+    padding: 16px 24px;
+    color: #3f3f3f;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: justify;
+    border-radius: 16px;
+}
+
+#abstract::before {
+    content: "Abstract:";
+    font-weight: 700;
+    margin-right: 8px;
+}
+
+
+#links {
+    margin: 16px 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    /* white-space: nowrap; */
+}
+
+#links div {
+    margin: 4px 8px;
+    width: 140px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#links a {
+    width: 100px;
+    height: 20px;
+    padding: 8px 16px;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+    background: linear-gradient(107.54deg, #0078d4 .39%, #8661c5 51.23%, #ff9349 100%) fixed;
+    border-radius: 50px;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+#links a:hover {
+    width: 105px;
+    height: 21px;
+    font-size: 17px;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.75);
+}
+
+#links a.disabled {
+    background-color: rgb(192, 192, 192);
+}
+
+#links a.disabled:hover {
+    background-color: rgb(192, 192, 192);
+}
+
+#links a::before {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'icomoon' !important;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    margin-right: 8px;
+}
+
+#links #paper::before {
+    content: "\e000";
+    font-size: 18px;
+}
+
+#links #arxiv::before {
+    content: "\e001";
+    font-size: 20px;
+}
+
+#links #code::before {
+    content: "\e002";
+    font-size: 20px;
+}
+
+#links #poster::before {
+    content: "\e004";
+    font-size: 20px;
+}
+
+#links #video::before {
+    content: "\e003";
+    font-size: 20px;
+}
+
+#links #demo::before {
+    content: "\e005";
+    font-size: 20px;
+}
+
+#teaser {
+    margin-top: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* #teaser::after {
+    content: "";
+    position: absolute;
+    top: 0px;
+    left: calc(50% - 50vw);
+    width: 100vw;
+    height: 100%;
+    background: gray;
+    opacity: 0.5;
+    z-index: -1;
+} */
+
+#teaser .label div {
+    height: 100%;
+    width: 100%;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 150%;
+    text-align: center;
+}
+
+#teaser div {
+    height: 100%;
+}
+
+
+/* .section::before {
+    content: "";
+    position: relative;
+    left: -32px;
+    width: 2px;
+    height: 32px;
+    background-color: rgb(32, 163, 196);
+}
+
+.section::after {
+    content: "";
+    position: relative;
+    right: -32px;
+    width: 2px;
+    height: 32px;
+    background-color: rgb(32, 163, 196);
+} */
+/* 
+.figure {
+    margin: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.figure div {
+    margin-top: 4px;
+    color: black;
+    font-size: 16px;
+    font-weight: 400;
+} */
+
+.bibtex {
+    margin: 32px 96px;
+    padding: 0px 24px;
+    font-family: consolas, monospace;
+    white-space: pre;
+    text-wrap: wrap;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    text-align: justify;
+}
+
+#bottombar {
+    position: relative;
+    bottom: 0px;
+    height: 50px;
+    width: 100%;
+    padding: 0px 10%;
+    background: linear-gradient(107.54deg, #000000.39%, #252525 51.23%, #525252 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+}
+
+#bottombar div {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+#bottombar div span {
+    font-weight: 700;
+}
+
+/* --------------------------------------------------------------------
+ * Qualitative-comparison grid layout (HOI retarget)
+ * -------------------------------------------------------------------- */
+
+/* Slider-hint banner above the grid */
+.slider-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 auto 24px auto;
+    padding: 10px 18px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1b3a6b;
+    background: linear-gradient(107.54deg, rgba(220, 238, 255, 0.65) .39%, rgba(245, 250, 255, 0.85) 51.23%, rgba(200, 226, 255, 0.65) 100%);
+    border: 1px solid rgba(120, 180, 255, 0.45);
+    border-radius: 999px;
+    box-shadow: 0 2px 10px rgba(120, 180, 255, 0.35), inset 0 1px 0 rgba(255,255,255,0.7);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.slider-hint-icon {
+    width: 26px;
+    height: 26px;
+    fill: #4a8fe0;
+    flex-shrink: 0;
+}
+
+/* Grid of comparison cells */
+.compare-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.compare-row {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+}
+
+.compare-row-single {
+    justify-content: center;
+}
+
+/* A comparison cell. Uses `flex: var(--ar)` so each cell's width is
+ * proportional to its video aspect ratio, giving equal heights in a row. */
+.compare-cell {
+    flex: var(--ar, 1) 1 0;
+    min-width: 0;
+    display: flex !important;              /* override .comparison-panel { display:none } default */
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Single-panel row: cap the width so it doesn't span full page */
+.compare-cell-solo {
+    flex: 0 0 auto;
+    width: min(900px, 90%);
+}
+
+/* Reset the nested triple-compare so it fills the cell and is aspect-driven */
+.compare-cell .triple-compare {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    aspect-ratio: var(--ar, 16 / 9);
+}
+
+.compare-cell .triple-compare canvas {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.compare-cell .triple-compare-labels {
+    max-width: none;
+    margin: 4px 0 0 0;
+    font-size: 16px;
+}
+
+/* Larger caption text, sized to the cell */
+.compare-cell .comparison-prompt-box {
+    max-width: none;
+    margin: 0;
+    padding: 14px 18px 16px 20px;
+    min-height: 0;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    cursor: default;
+    font-size: 18px;
+}
+
+.compare-cell .prompt-text {
+    font-size: 20px;
+    font-weight: 700;
+    white-space: normal;
+    color: #222;
+}
+
+/* Responsive: stack rows vertically on narrow viewports */
+@media (max-width: 900px) {
+    .compare-row {
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+    }
+    .compare-cell {
+        width: min(720px, 95%);
+        flex: 0 0 auto;
+    }
+    .slider-hint {
+        font-size: 16px;
+        padding: 8px 14px;
+    }
+    .compare-cell .prompt-text {
+        font-size: 18px;
+    }
+}
+
+/* --------------------------------------------------------------------
+ * Liquid-glass slider overlay
+ * The vertical splitter and the round handle sit ABOVE the canvas as
+ * real DOM elements so they can use `backdrop-filter` to refract and
+ * blur the video underneath. The SVG filter `#liquid-glass-distortion`
+ * (defined in index.html) does the warping; the gradient + highlight
+ * give the curved-glass look.
+ * -------------------------------------------------------------------- */
+
+.triple-compare {
+    /* establish a stacking context so absolute children sit above canvas */
+    isolation: isolate;
+}
+
+.glass-splitter {
+    position: absolute;
+    /* Extend ~10px past the top/bottom of the video frame so the bar
+     * looks like a slim pillar passing through the panel. */
+    top: -10px;
+    bottom: -10px;
+    width: 6px;
+    /* center the bar on the split position the JS sets via `left:` */
+    transform: translateX(-50%);
+    /* clicks pass through to the canvas which owns the drag logic */
+    pointer-events: none;
+    z-index: 5;
+    border-radius: 3px;
+    /* Very faint glass body — barely tinted, mostly transparent. */
+    background:
+        linear-gradient(90deg,
+            rgba(255, 255, 255, 0.16) 0%,
+            rgba(255, 255, 255, 0.04) 50%,
+            rgba(255, 255, 255, 0.16) 100%);
+    /* Real refraction: blur + gentle warping of whatever is behind */
+    -webkit-backdrop-filter: blur(4px) saturate(140%) url(#liquid-glass-distortion);
+    backdrop-filter: blur(4px) saturate(140%) url(#liquid-glass-distortion);
+    /* No outer glow — just a hairline white edge so it still reads as glass. */
+    box-shadow:
+        inset 1px 0 0 rgba(255, 255, 255, 0.45),
+        inset -1px 0 0 rgba(255, 255, 255, 0.30);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    will-change: left, transform, filter;
+    transition: box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.glass-splitter:hover,
+.glass-splitter.dragging {
+    background:
+        linear-gradient(90deg,
+            rgba(255, 255, 255, 0.28) 0%,
+            rgba(255, 255, 255, 0.10) 50%,
+            rgba(255, 255, 255, 0.28) 100%);
+    box-shadow:
+        inset 1px 0 0 rgba(255, 255, 255, 0.7),
+        inset -1px 0 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Capsule handle in the middle of the bar.
+ *
+ * The handle is the user's main affordance, so we lean hard into the
+ * "liquid glass" look: a domed, lit lozenge that floats above the video.
+ * The illusion is stacked from several layers:
+ *
+ *   1. A real backdrop-filter blur + saturate + SVG displacement that
+ *      genuinely warps the video underneath (this is what makes it
+ *      *look* like glass and not just a translucent rect).
+ *   2. A multi-stop background that fakes a chromatic edge fringe
+ *      (cool blue tint on the left rim, warm peach on the right) —
+ *      this is the trick that sells "thick curved glass" the most.
+ *   3. A bright crescent specular at the top via ::before, plus a
+ *      thin "caustic" pool of light at the bottom via ::after.
+ *   4. A layered box-shadow: outer soft drop shadow to lift it off
+ *      the video, plus inner rim shadows for thickness.
+ * -------------------------------------------------------------------- */
+.glass-handle {
+    position: absolute;
+    /* center on the bar's axis (parent .glass-splitter is 6px wide) */
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    /* Bigger than before so the curvature, rim and specular have room
+     * to actually read on screen. */
+    width: 62px;
+    height: 40px;
+    border-radius: 999px;
+    z-index: 6;
+    cursor: ew-resize;
+    pointer-events: none;
+    /* Layered fills, drawn back-to-front:
+     *   bottom edge soft reflection ┐
+     *   chromatic edge tint         │ — fake refraction at the rim
+     *   top crescent specular       │
+     *   faint body tint             ┘ — keeps the body legible on dark vids */
+    background:
+        /* 1. bright crescent at the top (bigger than ::before so it
+         *    survives even when ::before isn't visible) */
+        radial-gradient(120% 90% at 50% -20%,
+            rgba(255, 255, 255, 0.95) 0%,
+            rgba(255, 255, 255, 0.45) 18%,
+            rgba(255, 255, 255, 0.08) 45%,
+            rgba(255, 255, 255, 0.00) 70%),
+        /* 2. soft glow rising from the bottom — the "caustic pool" */
+        radial-gradient(130% 70% at 50% 115%,
+            rgba(255, 255, 255, 0.40) 0%,
+            rgba(255, 255, 255, 0.10) 35%,
+            rgba(255, 255, 255, 0.00) 65%),
+        /* 3. chromatic edge fringe — cool on the left, warm on the
+         *    right. This is the single most "glassy" cue. */
+        linear-gradient(90deg,
+            rgba(150, 200, 255, 0.55) 0%,
+            rgba(190, 220, 255, 0.18) 18%,
+            rgba(255, 255, 255, 0.04) 50%,
+            rgba(255, 220, 190, 0.18) 82%,
+            rgba(255, 190, 150, 0.55) 100%),
+        /* 4. faint body tint so the capsule keeps a silhouette even
+         *    on bright video frames */
+        linear-gradient(180deg,
+            rgba(255, 255, 255, 0.22) 0%,
+            rgba(255, 255, 255, 0.08) 50%,
+            rgba(255, 255, 255, 0.18) 100%);
+    /* Real refraction — blur + boost saturation + warp. The 14 px blur
+     * and 200 % saturate is what makes whatever is behind look like
+     * it's been seen through a chunky piece of glass. */
+    -webkit-backdrop-filter: blur(14px) saturate(200%) url(#liquid-glass-distortion);
+    backdrop-filter: blur(14px) saturate(200%) url(#liquid-glass-distortion);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    /* Outer: lift it off the video. Inner: rim/thickness cues. */
+    box-shadow:
+        /* soft ambient drop shadow */
+        0 8px 22px rgba(0, 0, 0, 0.32),
+        /* tighter contact shadow */
+        0 2px 6px rgba(0, 0, 0, 0.25),
+        /* hairline outer crisp edge */
+        0 0 0 0.5px rgba(0, 0, 0, 0.12),
+        /* bright top rim — strongest highlight */
+        inset 0 2px 1px rgba(255, 255, 255, 0.95),
+        /* darker bottom rim — implies thickness */
+        inset 0 -2px 2px rgba(0, 0, 0, 0.22),
+        /* side rim highlights for the curved-glass cylinder feel */
+        inset 1.5px 0 1px rgba(255, 255, 255, 0.55),
+        inset -1.5px 0 1px rgba(255, 255, 255, 0.55);
+    /* Arrows are kept tightly centered on the bar's axis. */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 0;
+    color: #1b3a6b;
+    will-change: left, transform, filter;
+    transition: transform 0.18s ease, box-shadow 0.22s ease, background 0.22s ease;
+}
+
+.glass-handle::before {
+    /* Sharp specular crescent — looks like a curved studio light hitting
+     * the top of the dome. Slight blur softens the lower edge. */
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 7px;
+    right: 7px;
+    height: 52%;
+    /* Asymmetric radii give the highlight a "lensed" shape rather than
+     * a generic pill — wide at the top, narrower at the bottom. */
+    border-radius: 999px 999px 60% 60% / 999px 999px 100% 100%;
+    background: linear-gradient(180deg,
+        rgba(255, 255, 255, 0.92) 0%,
+        rgba(255, 255, 255, 0.55) 25%,
+        rgba(255, 255, 255, 0.10) 65%,
+        rgba(255, 255, 255, 0.00) 100%);
+    filter: blur(0.4px);
+    pointer-events: none;
+}
+
+.glass-handle::after {
+    /* "Caustic" — a thin pool of light along the bottom of the lens,
+     * as if light bent through the glass and re-converged below. */
+    content: '';
+    position: absolute;
+    left: 14%;
+    right: 14%;
+    bottom: 3px;
+    height: 22%;
+    border-radius: 999px;
+    background: linear-gradient(180deg,
+        rgba(255, 255, 255, 0.00) 0%,
+        rgba(255, 255, 255, 0.55) 100%);
+    filter: blur(1.2px);
+    pointer-events: none;
+}
+
+.glass-handle:hover,
+.glass-handle.dragging {
+    /* Slight pop + a stronger lift to telegraph the active state */
+    transform: translate(-50%, -50%) scale(1.08);
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.40),
+        0 3px 8px rgba(0, 0, 0, 0.30),
+        0 0 0 0.5px rgba(0, 0, 0, 0.14),
+        inset 0 2px 1px rgba(255, 255, 255, 1.0),
+        inset 0 -2px 2px rgba(0, 0, 0, 0.26),
+        inset 1.5px 0 1px rgba(255, 255, 255, 0.7),
+        inset -1.5px 0 1px rgba(255, 255, 255, 0.7);
+}
+
+.glass-handle .arrow {
+    /* A bit larger to match the bigger capsule. Two stacked borders
+     * (white over dark) so the arrow stays readable on either light
+     * or dark video content underneath the glass. */
+    width: 9px;
+    height: 9px;
+    border-top: 2px solid rgba(255, 255, 255, 0.95);
+    border-left: 2px solid rgba(255, 255, 255, 0.95);
+    transform: rotate(-45deg);
+    opacity: 0.95;
+    /* drop-shadow gives the arrow a dark outline so it pops on light
+     * video too — without a second DOM element. */
+    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.55))
+            drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+    /* z-index so the arrows sit above ::before/::after */
+    position: relative;
+    z-index: 1;
+}
+
+.glass-handle .arrow.right {
+    transform: rotate(135deg);
+}
+
+/* Firefox fallback: backdrop-filter:url() not supported in some versions.
+ * Without the SVG warp we still get a frosted-glass look. */
+@supports not (backdrop-filter: url(#liquid-glass-distortion)) {
+    .glass-splitter,
+    .glass-handle {
+        backdrop-filter: blur(8px) saturate(160%);
+        -webkit-backdrop-filter: blur(8px) saturate(160%);
+    }
+}
