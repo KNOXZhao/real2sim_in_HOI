@@ -792,11 +792,21 @@ video {
 
     /* Same backdrop-filter chain as example 04. The url(#…) reference
      * is the SDF lens; Chromium animates it cleanly from the rest
-     * state's bare blur+saturate chain. */
+     * state's bare blur+saturate chain.
+     *
+     * `var(--lg-filter)` is set by js/liquid_glass.js to a
+     * `url(#liquid-glass-bar-N)` reference where N is the splitter's
+     * sequential id. Each splitter has its OWN filter sized to its
+     * actual height, because the qualitative-results grid mixes
+     * cells with different aspect ratios and a shared filter clipped
+     * the refraction on taller bars. The fallback `url(#liquid-glass-
+     * bar)` keeps the original behaviour if the JS hasn't run yet
+     * (e.g. before MutationObserver wires up a freshly-inserted
+     * splitter). */
     -webkit-backdrop-filter:
-        url(#liquid-glass-bar) blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1);
+        var(--lg-filter, url(#liquid-glass-bar)) blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1);
     backdrop-filter:
-        url(#liquid-glass-bar) blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1);
+        var(--lg-filter, url(#liquid-glass-bar)) blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1);
 
     /* Mirror the example's shadow stack:
      *   inset top-left highlight + bottom-right rim   → curved bezel
@@ -873,6 +883,16 @@ video {
     --pos: 0;
     --thumb-size: 28px;
     --track-h: 10px;
+    /* Inset so the leftmost thumb position doesn't overlap the
+     * preceding play/pause button when --pos is 0. The active-state
+     * thumb scales to 30 × 30 px (1.12 transform brings it to ~34 px
+     * visual width); without this inset its left half would push
+     * ~17 px past the slider's left edge and overlap the button.
+     *
+     * The track, fill, thumb, and overlaid <input> all reference
+     * this variable to keep their coordinate origin aligned — see
+     * those rules below. */
+    --inset-left: 18px;
 
     position: relative;
     flex: 1 1 auto;
@@ -888,7 +908,11 @@ video {
 .glass-slider-track {
     position: absolute;
     top: 50%;
-    left: 0; right: 0;
+    /* Inset on the left by --inset-left so the visible track starts
+     * past the play/pause button. `right: 0` keeps the track's
+     * right edge flush with the slider container — the inset only
+     * shrinks the track from the left, which is what we want. */
+    left: var(--inset-left); right: 0;
     height: var(--track-h);
     transform: translateY(-50%);
     border-radius: 999px;
@@ -923,8 +947,13 @@ video {
     position: absolute;
     top: 50%;
     /* Center the bauble on the current pos. We translate by half its
-     * own width so the centerline tracks `--pos` precisely. */
-    left: calc(var(--pos) * 100%);
+     * own width so the centerline tracks `--pos` precisely.
+     *
+     * The thumb travels from the track's left edge (--inset-left)
+     * to the slider's right edge (100%). Without the inset offset
+     * the thumb's centerline at --pos: 0 would sit at the slider's
+     * left edge, which lands on top of the play/pause button. */
+    left: calc(var(--inset-left) + var(--pos) * (100% - var(--inset-left)));
     transform: translate(-50%, -50%);
 
     /* === Rest state =========================================== */
@@ -1085,11 +1114,20 @@ video {
 
 /* The native input is invisible but receives all input events. We
  * make it cover the whole widget (including the thumb area) so
- * pointer-down anywhere on the track jumps the thumb there. */
+ * pointer-down anywhere on the track jumps the thumb there.
+ *
+ * Inset-left matches the track so clicking the visible track's
+ * left edge maps to value=0 (browsers map click-x linearly to
+ * [min, max] across the input's width). Without this inset the
+ * input's coordinate origin would be ~18 px to the left of the
+ * track and the play/pause button would steal clicks intended
+ * for the slider's leftmost track positions. */
 .glass-slider input[type="range"] {
     position: absolute;
     inset: 0;
-    width: 100%;
+    left: var(--inset-left);
+    width: auto;
+    right: 0;
     height: 100%;
     margin: 0;
     padding: 0;
@@ -1110,5 +1148,208 @@ video {
         backdrop-filter: blur(8px) saturate(1.5) brightness(1.04);
         -webkit-backdrop-filter: blur(8px) saturate(1.5) brightness(1.04);
         background: rgba(255, 255, 255, 0.20);
+    }
+}
+
+/* --------------------------------------------------------------------
+ * Liquid-glass icon button (.glass-icon-btn)
+ *
+ * Used for the play/pause control next to the scrub slider on the
+ * Interactive 3D Animation demo. Same Figma-spec rim/halo stack as
+ * the slider thumb, but tuned for an opaque page background:
+ *   - The thumb sits over the video viewport, so it can be near-
+ *     transparent and let the SDF lens carry the look.
+ *   - This button sits over the page's light-grey panel (#f5f5f7),
+ *     so a near-transparent surface would just look milky. We use a
+ *     white-tinted base in both states (calm grey-glass at rest,
+ *     bright frosted glass on hover/active) and let the icon glyph
+ *     carry the contrast. The SDF refraction (`url(#liquid-glass-
+ *     playpause)`) still bends whatever's behind — page texture,
+ *     adjacent controls — so the curved-glass feel reads.
+ *
+ * The button has two icons stacked inside it (play + pause); CSS
+ * shows the one matching [data-state] and hides the other. Toggling
+ * is a single attribute write — no innerHTML, no flash. -------- */
+.glass-icon-btn {
+    /* === Geometry — must match ACTIVE_BTN_WIDTH/HEIGHT in
+     *               js/liquid_glass.js so the SDF map is sampled
+     *               at exactly the rendered size.
+     *
+     * `border-radius` morphs from 12 px (rest squircle) at rest to
+     * 16 px (more-rounded squircle) when the user interacts — see
+     * the active-state rule below. Both endpoints share the same
+     * SDF map; the corner radius the SDF was generated at (~0.32 of
+     * the half-extent ≈ 11.5 px) reads correctly across this range. */
+    width:  36px;
+    height: 36px;
+    border-radius: 12px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    cursor: pointer;
+    color: #1f2937;             /* icon glyph color — slate */
+    /* Suppress the browser's default focus ring everywhere. We have
+     * a bouncy + lit-up `:focus-visible` style that already serves
+     * as the visible focus indicator for keyboard users, and the
+     * default ring shows up as a dark "corner" rectangle around the
+     * button after a mouse click — which is exactly the artifact
+     * the design needs to avoid. */
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    /* Establish identity scale here so the bouncy hover transition
+     * has something to spring back to. */
+    transform: scale(1);
+
+    /* === Rest state ============================================
+     * Slightly grey-tinted frosted surface so the button is clearly
+     * distinguishable from the page panel (#f5f5f7) it sits on,
+     * without looking heavy. The neutral cool-grey tint
+     * rgb(220, 220, 226) reads as "uncoloured glass" rather than
+     * "white pill" — same visual weight as the slider's rest-state
+     * pill. */
+    background: rgba(220, 220, 226, 0.72);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    -webkit-backdrop-filter: blur(6px) saturate(1.05);
+    backdrop-filter:         blur(6px) saturate(1.05);
+    box-shadow:
+        inset 0  0.5px 0 rgba(255, 255, 255, 0.70),
+        inset 0 -0.5px 0 rgba(0, 0, 0, 0.08);
+
+    /* === Springy bouncy transition ==============================
+     * cubic-bezier(0.34, 1.56, 0.64, 1) — ease-out-back. Anything
+     * that should "spring" rides this curve over 360 ms:
+     *   - transform (the scale pop)
+     *   - border-radius (the corner morph 12 px → 50%)
+     * The colour/shadow chain stays on the calm 220 ms ease-out so
+     * surface settles before the bounce finishes — that contrast is
+     * what makes the bounce read as a *physical* spring instead of
+     * the colours lagging behind. */
+    will-change: background, box-shadow, border-color, backdrop-filter,
+                 transform, color, border-radius;
+    transition:
+        background       220ms cubic-bezier(0.32, 0.72, 0, 1),
+        box-shadow       220ms cubic-bezier(0.32, 0.72, 0, 1),
+        border-color     220ms cubic-bezier(0.32, 0.72, 0, 1),
+        backdrop-filter  220ms cubic-bezier(0.32, 0.72, 0, 1),
+        -webkit-backdrop-filter 220ms cubic-bezier(0.32, 0.72, 0, 1),
+        color            180ms cubic-bezier(0.32, 0.72, 0, 1),
+        transform        360ms cubic-bezier(0.34, 1.56, 0.64, 1),
+        border-radius    360ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.glass-icon-btn .icon {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    /* Clean white drop-shadow on the glyph — sharpens it against
+     * the slightly busy frosted surface in the active state. We
+     * deliberately keep this minimal: the lit-up feel should come
+     * from the surface (rim wash + inset highlights), not from a
+     * bloom on the icon. */
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.7));
+}
+
+/* Show one icon at a time based on data-state. CSS handles the swap;
+ * the JS just flips the attribute. */
+.glass-icon-btn .icon-play  { display: none; }
+.glass-icon-btn .icon-pause { display: none; }
+.glass-icon-btn[data-state="paused"]  .icon-play  { display: block; }
+.glass-icon-btn[data-state="playing"] .icon-pause { display: block; }
+
+/* === Active state =============================================
+ * Hover / focus / active drag — the surface itself carries the
+ * lit-up effect. Three changes from the rest state:
+ *   1. `border-radius: 16px` — corners spring to a more-rounded
+ *      squircle using the same ease-out-back curve as the scale
+ *      pop (rest is 12 px; bumping to 16 px on a 36 px button reads
+ *      as "noticeably softer corners" without crossing over into
+ *      circle territory).
+ *   2. `transform: scale(1.12)` — bouncy size pop, overshoots and
+ *      settles thanks to the spring easing.
+ *   3. The surface goes from grey-frosted to bright-glass: the
+ *      radial rim wash brightens, the inset highlight rims thicken
+ *      and brighten, and a new inset top-edge highlight reads as
+ *      "light hitting the dome from above". No outer warm bloom —
+ *      just a hairline outer rim and a *gentle* drop-shadow so the
+ *      brightness is on the button, not haloing around it. */
+.glass-icon-btn:hover,
+.glass-icon-btn:focus-visible,
+.glass-icon-btn:active {
+    color: #0b1220;
+    transform: scale(1.12);
+    border-radius: 16px;
+
+    /* Bright frosted surface with a strong rim wash. The radial
+     * gradient peaks at the rim, making the edges look "lit from
+     * within"; the white-tinted base lifts the whole surface to
+     * read as glass-with-light rather than grey-glass. */
+    background:
+        radial-gradient(58% 58% at 50% 50%,
+            rgba(255, 255, 255, 0)    58%,
+            rgba(255, 255, 255, 0.55) 100%),
+        rgba(255, 255, 255, 0.78);
+    -webkit-backdrop-filter:
+        url(#liquid-glass-playpause) blur(0.25px) contrast(1.1) brightness(1.06) saturate(1.1);
+    backdrop-filter:
+        url(#liquid-glass-playpause) blur(0.25px) contrast(1.1) brightness(1.06) saturate(1.1);
+    border-color: rgba(255, 255, 255, 0.75);
+    box-shadow:
+        /* Surface highlights — these carry the lit-up feel.
+         *   Layered inset rims (Borda inner + outer from the Figma
+         *   spec): a thicker translucent halo wrapped by a sharper
+         *   bright rim, so the edge of the button reads bright. */
+        inset 0 0 0 1.5px rgba(255, 255, 255, 0.28),
+        inset 0 0 0 1px   rgba(255, 255, 255, 0.70),
+        /* Curved-glass bezel: top-left highlight + bottom-right
+         *   rim — same trick as example-04 / the slider thumb. */
+        inset  1px  1px 0 rgba(255, 255, 255, 0.85),
+        inset -1px -1px 0 rgba(255, 255, 255, 0.40),
+        /* New: a 4 px tall inset highlight at the top of the button.
+         *   On a rounded square this reads as a crescent of light
+         *   along the top edge — like a polished glass tile lit from
+         *   above. This is where most of the perceived "shine" comes
+         *   from. */
+        inset 0 4px 6px -3px rgba(255, 255, 255, 0.85),
+        /* Hairline outer rim — keeps the silhouette crisp without
+         *   looking like a halo. */
+        0 0 0 1px rgba(255, 255, 255, 0.35),
+        /* Gentle outer drop-shadow — just enough to lift the button
+         *   off the page panel. No coloured bloom. */
+        0 2px 6px rgba(0, 0, 0, 0.10);
+    outline: none;
+}
+
+/* Pressed state — the bounce overshoots smaller (scale 1.04), then
+ * the click releases back into the hover state's 1.12 spring. The
+ * surface brightens one more notch so the button feels "turned on
+ * harder" while pressed. */
+.glass-icon-btn:active {
+    transform: scale(1.04);
+    background:
+        radial-gradient(58% 58% at 50% 50%,
+            rgba(255, 255, 255, 0)    56%,
+            rgba(255, 255, 255, 0.65) 100%),
+        rgba(255, 255, 255, 0.88);
+    box-shadow:
+        inset 0 0 0 1.5px rgba(255, 255, 255, 0.40),
+        inset 0 0 0 1px   rgba(255, 255, 255, 0.85),
+        inset  1px  1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(255, 255, 255, 0.55),
+        inset 0 5px 7px -3px rgba(255, 255, 255, 0.95),
+        0 0 0 1px rgba(255, 255, 255, 0.50),
+        0 1px 4px rgba(0, 0, 0, 0.10);
+}
+
+/* Safari/Firefox fallback for the button: graceful frosted glass
+ * without true curved-glass refraction, same as the splitter / thumb
+ * fallbacks. */
+@supports not (backdrop-filter: url(#liquid-glass-playpause)) {
+    .glass-icon-btn:hover,
+    .glass-icon-btn:focus-visible,
+    .glass-icon-btn:active {
+        backdrop-filter: blur(8px) saturate(1.5) brightness(1.04);
+        -webkit-backdrop-filter: blur(8px) saturate(1.5) brightness(1.04);
     }
 }
