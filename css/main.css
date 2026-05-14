@@ -911,7 +911,12 @@ video {
     /* Flat iOS-blue fill (rgb(30, 110, 244)) — clean, constant color
      * matches the rest of the page's blue accents. */
     background: rgb(30, 110, 244);
-    border-radius: 999px 0 0 999px;
+    /* Fully rounded on all four corners so the fill's right edge
+     * matches the track's pill silhouette under the thumb (was
+     * `999px 0 0 999px` which left a square right edge). With the
+     * track's border-radius: 999px clipping it, the visible result
+     * is a perfectly rounded blue capsule that grows from the left. */
+    border-radius: 999px;
 }
 
 .glass-slider-thumb {
@@ -963,9 +968,27 @@ video {
 
 /* === Active state ===========================================
  *
- * The example-04 circular liquid-glass dome — full SDF rim
- * refraction, near-clear surface, the curved-bezel shadow stack.
- * Triggered when:
+ * Adapted from a Figma "Liquid Glass" pill spec (the horizontal
+ * 309 × 187 px capsule reference the user supplied). That spec layers,
+ * from outside in:
+ *   - Rectangle 3   — 4 px black @ 40% rim, blurred 20 px  → soft dark halo
+ *   - (focus ring)  — 2 px white @ 20% (hidden, used on focus only)
+ *   - Borda outer   — 4 px white @ 30%   → bright crisp rim
+ *   - Borda inner   — 8 px white @ 5%    → thick muted inner halo
+ *   - Rectangle 12  — radial gradient (transparent core → white @ 5% rim)
+ *                     over backdrop-blur(2 px)
+ *
+ * We keep the example-04 SDF refraction (`url(#liquid-glass-thumb)`)
+ * because that's the "real Apple WWDC look" the user already signed
+ * off on, and stack the Figma's rim/halo layers on top. The Figma
+ * pixel sizes are scaled down from 187 px tall → 30 px thumb (~6×):
+ *   8 px inner halo  ≈ 1.5 px → use 1.5 px inset white@5%
+ *   4 px outer rim   ≈ 0.7 px → use 1 px inset white@30%
+ *   20 px black blur ≈ 3.5 px → outer drop-shadow 0 3px 10px rgba(0,0,0,0.30)
+ * The hidden focus ring becomes a real 2 px outer ring on
+ * :focus-visible (see the .glass-slider:focus-visible rule below).
+ *
+ * Active state is triggered when:
  *   - the cursor hovers the slider widget, or
  *   - the input has focus (keyboard scrub), or
  *   - the user is actively dragging (.dragging is set by the inline
@@ -975,39 +998,88 @@ video {
 .glass-slider:hover         .glass-slider-thumb,
 .glass-slider:focus-within  .glass-slider-thumb,
 .glass-slider.dragging      .glass-slider-thumb {
-    width:  28px;
-    height: 28px;
+    /* Bumped 28 → 30 so the stacked rim layers from the Figma spec
+     * have a couple of pixels to read against the SDF core. */
+    width:  30px;
+    height: 30px;
     border-radius: 50%;
 
-    /* Near-clear translucent surface — let the SDF lens carry the
-     * look (same recipe as the splitter pill's active state). */
-    background: rgba(255, 255, 255, 0.10);
+    /* Rectangle 12 — the soft radial rim highlight from the spec
+     * (transparent core, faint white wash at the very edge). Layered
+     * on top of the near-clear translucent base used previously so
+     * the SDF lens still carries the refraction. */
+    background:
+        radial-gradient(58% 58% at 50% 50%,
+            rgba(255, 255, 255, 0)    64.2%,
+            rgba(255, 255, 255, 0.18) 100%),
+        rgba(255, 255, 255, 0.10);
 
     -webkit-backdrop-filter:
         url(#liquid-glass-thumb) blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1);
     backdrop-filter:
         url(#liquid-glass-thumb) blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1);
 
-    /* Same example-04 shadow stack as the splitter pill, reused here
-     * to make the bauble feel like a real spherical glass dome. */
+    /* Layered borders + halos, in stacking order from the SDF surface
+     * outward. box-shadow lets us stack rims without consuming the
+     * single `border` slot (which we keep free for focus-visible).
+     *
+     *   inset  1.5px white@10%   → Borda inner (thick muted halo)
+     *   inset    1px white@45%   → Borda outer (bright crisp rim)
+     *   inset top-left highlight + bottom-right rim  → curved-glass bezel
+     *                                                  (kept from prior
+     *                                                  example-04 stack)
+     *   outer 0 3px 10px black@30%   → Rectangle 3 dark halo, scaled
+     *   outer 0 -8px 20px inset      → underside dark crescent (kept) */
     box-shadow:
+        inset 0 0 0 1.5px rgba(255, 255, 255, 0.10),
+        inset 0 0 0 1px   rgba(255, 255, 255, 0.45),
         inset  1px  1px 0 rgba(255, 255, 255, 0.70),
         inset -1px -1px 0 rgba(255, 255, 255, 0.30),
-        0 4px 10px rgba(0, 0, 0, 0.22),
+        0 3px 10px rgba(0, 0, 0, 0.30),
+        0 4px 10px rgba(0, 0, 0, 0.18),
         0 -8px 20px inset rgba(0, 0, 0, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.45);
+    border: 1px solid transparent; /* reserved for :focus-visible */
+}
+
+/* Hidden-by-default 2 px outer ring from the Figma's third "Borda"
+ * (the visibility:hidden one). Materialises on keyboard focus only —
+ * matches the spec's intent without ever showing on hover/drag.
+ *
+ * The real focusable element is the overlaid <input type="range">.
+ * The thumb is a *previous* sibling, so `~` won't reach it; we use
+ * `:has()` (Chromium 105+, which the SDF refraction already requires)
+ * to walk back up to the slider root and target the thumb. */
+.glass-slider:has(input[type="range"]:focus-visible) .glass-slider-thumb {
+    border-color: rgba(255, 255, 255, 0.20);
+    box-shadow:
+        0 0 0 2px rgba(255, 255, 255, 0.20),
+        inset 0 0 0 1.5px rgba(255, 255, 255, 0.10),
+        inset 0 0 0 1px   rgba(255, 255, 255, 0.45),
+        inset  1px  1px 0 rgba(255, 255, 255, 0.70),
+        inset -1px -1px 0 rgba(255, 255, 255, 0.30),
+        0 3px 10px rgba(0, 0, 0, 0.30),
+        0 4px 10px rgba(0, 0, 0, 0.18),
+        0 -8px 20px inset rgba(0, 0, 0, 0.12);
 }
 
 /* During an active drag, push the active state a touch further for
- * tactile feedback — slightly stronger surface and shadow, and a
- * subtle scale-up. Mirrors the splitter's .dragging tweak. */
+ * tactile feedback — slightly stronger surface, brighter outer rim,
+ * deeper dark halo, and a subtle scale-up. Mirrors the splitter's
+ * .dragging tweak and re-stacks the Figma layers at higher intensity. */
 .glass-slider.dragging .glass-slider-thumb {
     transform: translate(-50%, -50%) scale(1.08);
-    background: rgba(255, 255, 255, 0.16);
+    background:
+        radial-gradient(58% 58% at 50% 50%,
+            rgba(255, 255, 255, 0)    64.2%,
+            rgba(255, 255, 255, 0.24) 100%),
+        rgba(255, 255, 255, 0.16);
     box-shadow:
+        inset 0 0 0 1.5px rgba(255, 255, 255, 0.14),
+        inset 0 0 0 1px   rgba(255, 255, 255, 0.55),
         inset  1px  1px 0 rgba(255, 255, 255, 0.95),
         inset -1px -1px 0 rgba(255, 255, 255, 0.45),
-        0 8px 18px rgba(0, 0, 0, 0.28),
+        0 4px 14px rgba(0, 0, 0, 0.36),
+        0 8px 18px rgba(0, 0, 0, 0.24),
         0 -10px 24px inset rgba(0, 0, 0, 0.16);
 }
 

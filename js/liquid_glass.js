@@ -62,30 +62,59 @@
   // -- Build/refresh a single feImage + feDisplacementMap filter -----
   // `filterId` is the <filter> id; CSS references it via
   // `backdrop-filter: url(#<filterId>)`.
+  //
+  // ANTI-ALIASING NOTE
+  // ------------------
+  // The bar is only ~26 CSS px wide. If we paint the displacement map
+  // at exactly that size, each scanline's rim shift is rounded to a
+  // single quantized value, and adjacent rows along the curved bezel
+  // can land on visibly different shift amounts → "sawtooth" stair-
+  // stepping along the bar's edge (especially obvious against high-
+  // contrast frames like white objects on black backgrounds).
+  //
+  // The fix is to supersample: render the canvas at SS× the display
+  // size, but keep the <feImage> region at the *display* size. The
+  // SVG renderer bilinearly downsamples the data URL → the curved
+  // rim becomes a smooth gradient of shifts instead of integer steps.
+  // Visible refraction strength is unchanged (the encoding still
+  // maps ±peak ↦ 0..255 and feDisplacementMap's `scale` matches the
+  // peak in *display* pixels), but the stair-stepping disappears.
+  const SS = 3; // 3× supersample is plenty for a 26 px bar; cheap.
   function buildLensFilter(filterId, width, height, fragment) {
     const ns  = 'http://www.w3.org/2000/svg';
     const xns = 'http://www.w3.org/1999/xlink';
     const defs = document.getElementById('liquid-glass-defs');
     if (!defs) return;
 
+    // Display size — what feImage paints into and what feDisplacementMap
+    // measures `scale` in.
     const w = Math.max(2, Math.ceil(width));
     const h = Math.max(2, Math.ceil(height));
 
-    // 1) Paint the displacement map onto an off-screen canvas.
+    // Hi-res sampling grid for the SDF — the canvas itself is SS× larger
+    // than the display region in each axis.
+    const sw = w * SS;
+    const sh = h * SS;
+
+    // 1) Paint the displacement map onto an off-screen (supersampled)
+    //    canvas. UVs stay in [0,1] regardless of SS, so the SDF is
+    //    sampled the same way — just at finer resolution.
     const canvas = document.createElement('canvas');
-    canvas.width  = w;
-    canvas.height = h;
+    canvas.width  = sw;
+    canvas.height = sh;
     const cctx = canvas.getContext('2d');
-    const data = new Uint8ClampedArray(w * h * 4);
+    const data = new Uint8ClampedArray(sw * sh * 4);
 
     const raw = [];
     let max = 0;
     for (let i = 0; i < data.length; i += 4) {
-      const x = (i / 4) % w;
-      const y = Math.floor(i / 4 / w);
-      const pos = fragment({ x: x / w, y: y / h });
-      const dx  = pos.x * w - x;
-      const dy  = pos.y * h - y;
+      const px = (i / 4) % sw;
+      const py = Math.floor(i / 4 / sw);
+      const pos = fragment({ x: px / sw, y: py / sh });
+      // dx/dy expressed in *display* pixels (not supersampled pixels)
+      // so feDisplacementMap's `scale` units stay in display px.
+      const dx  = pos.x * w - (px / SS);
+      const dy  = pos.y * h - (py / SS);
       if (Math.abs(dx) > max) max = Math.abs(dx);
       if (Math.abs(dy) > max) max = Math.abs(dy);
       raw.push(dx, dy);
@@ -102,7 +131,7 @@
       data[i + 2] = 0;
       data[i + 3] = 255;
     }
-    cctx.putImageData(new ImageData(data, w, h), 0, 0);
+    cctx.putImageData(new ImageData(data, sw, sh), 0, 0);
     const mapURL = canvas.toDataURL();
 
     // 2) Create or update the SVG filter that uses this canvas.
@@ -118,6 +147,10 @@
       feImage.setAttribute('result', 'map');
       feImage.setAttribute('x', '0');
       feImage.setAttribute('y', '0');
+      // High-quality downsampling from the SS× canvas to the display
+      // region. Without this hint Chromium may pick nearest-neighbour
+      // and we lose the entire benefit of supersampling.
+      feImage.setAttribute('preserveAspectRatio', 'none');
       filter.appendChild(feImage);
 
       const feDisp = document.createElementNS(ns, 'feDisplacementMap');
@@ -139,6 +172,10 @@
     const feImage = document.getElementById(filterId + '-img');
     const feDisp  = document.getElementById(filterId + '-disp');
     if (feImage) {
+      // feImage region is the *display* size — the data URL is
+      // SS× larger and the renderer scales it down with bilinear
+      // filtering (same trick as drawing a 3× retina image into a
+      // 1× CSS box).
       feImage.setAttribute('width',  String(w));
       feImage.setAttribute('height', String(h));
       // Both `href` and the legacy xlink:href are set so older Chromium
@@ -165,14 +202,20 @@
   //   - 0.46 tall  → leaves only ~4% on top/bottom as bezel; we
   //                  don't want top/bottom refraction competing
   //                  with the long-edge effect.
-  // The smoothStep(0.35, 0, d - 0.04) is tighter than the default
+  // The smoothStep ramp is tighter than the example default
   // (0.5, 0, d - 0.08) so the bend ramps up faster as you approach
   // the rim — sharper curvature, stronger rim pull.
+  //
+  // We softened it slightly from (0.35, 0, d - 0.04) → (0.42, 0, d - 0.05)
+  // so the easing toward the rim is a hair more gradual. Combined with
+  // the supersampled displacement map this kills the visible "sawtooth"
+  // stair-stepping along the bar edge that appeared on high-contrast
+  // frames, while keeping the same overall curved-glass refraction.
   function barFragment(uv) {
     const ix = uv.x - 0.5;
     const iy = uv.y - 0.5;
     const d  = roundedRectSDF(ix, iy, 0.18, 0.46, 0.4);
-    const t  = smoothStep(0.35, 0, d - 0.04);
+    const t  = smoothStep(0.42, 0, d - 0.05);
     const s  = smoothStep(0, 1, t);
     return tex(ix * s + 0.5, iy * s + 0.5);
   }
@@ -219,8 +262,12 @@
   // hover. The rest-state CSS doesn't reference the filter anyway,
   // so the dormant map is harmless.
   const ACTIVE_BAR_WIDTH    = 26;
-  const ACTIVE_THUMB_WIDTH  = 28;
-  const ACTIVE_THUMB_HEIGHT = 28;
+  // Thumb is 30 × 30 in the active state (was 28). Bumped slightly so
+  // the layered Figma rim/halo stack has room to read on top of the
+  // SDF refraction — keep this in sync with .glass-slider-thumb's
+  // active width/height in main.css.
+  const ACTIVE_THUMB_WIDTH  = 30;
+  const ACTIVE_THUMB_HEIGHT = 30;
   let lastBarSize   = { w: 0, h: 0 };
   let lastThumbSize = { w: 0, h: 0 };
 
