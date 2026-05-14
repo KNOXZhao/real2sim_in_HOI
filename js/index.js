@@ -310,19 +310,17 @@ function initSingleTripleVideoCompare(panelId) {
 
   // === Liquid-glass slider overlays ===
   // We draw the splitter & handle as DOM elements above the canvas so they
-  // can use CSS `backdrop-filter: blur() url(#liquid-glass-distortion)` to
-  // genuinely refract the video underneath (canvas pixels can't do that).
+  // can use CSS `backdrop-filter: url(#liquid-glass-handle)` to genuinely
+  // refract the video underneath (canvas pixels can't do that). The SVG
+  // displacement filters are built once at page load by js/liquid_glass.js.
+  //
+  // The bar/handle are intentionally indicator-free: the SDF refraction
+  // is the visual affordance — like Apple's iOS 26 "Liquid Glass" lens.
   function makeGlassSplitter() {
       const bar = document.createElement('div');
       bar.className = 'glass-splitter';
       const handle = document.createElement('div');
       handle.className = 'glass-handle';
-      const arrowL = document.createElement('span');
-      arrowL.className = 'arrow left';
-      const arrowR = document.createElement('span');
-      arrowR.className = 'arrow right';
-      handle.appendChild(arrowL);
-      handle.appendChild(arrowR);
       bar.appendChild(handle);
       container.appendChild(bar);
       return bar;
@@ -526,10 +524,27 @@ function initSingleTripleVideoCompare(panelId) {
   }
 
   // 检测鼠标是否在分割线附近，改变光标样式
+  // The canvas owns mouse events (the splitter has pointer-events:none
+  // so it can sit visually above the canvas without stealing input),
+  // so we manually toggle a `.hover` class on the appropriate splitter
+  // when the cursor enters its grab zone. The CSS uses that class to
+  // morph the bar from its rest-state (thin grey rule) to the
+  // full liquid-glass pill — same idea as iOS 26's button states.
+  function setSplitterHover(el, isHovering) {
+    if (!el) return;
+    if (isHovering) el.classList.add('hover');
+    else            el.classList.remove('hover');
+  }
+
   function onCanvasMouseMove(e) {
     if (activeSplitter) {
       // 如果正在拖动，保持手指光标
       canvas.style.cursor = 'pointer';
+      // While dragging, the .dragging class already provides the
+      // liquid-glass styling — make sure no stale .hover remains on
+      // the *other* splitter from the user's last cursor position.
+      if (activeSplitter !== 's1') setSplitterHover(splitter1, false);
+      if (activeSplitter !== 's2') setSplitterHover(splitter2, false);
       return;
     }
 
@@ -541,12 +556,22 @@ function initSingleTripleVideoCompare(panelId) {
     const x1cur = s1 * width;
     const x2cur = s2 * width;
 
+    const near1 = Math.abs(x - x1cur) < clickThreshold;
+    const near2 = !isDual && Math.abs(x - x2cur) < clickThreshold;
+
     // 检查鼠标是否在分割线附近
-    if (Math.abs(x - x1cur) < clickThreshold || Math.abs(x - x2cur) < clickThreshold) {
+    if (near1 || near2) {
       canvas.style.cursor = 'pointer';
     } else {
       canvas.style.cursor = 'default';
     }
+
+    // Toggle the .hover class so the CSS can morph the corresponding
+    // splitter into liquid-glass mode. In dual mode there is only
+    // splitter1; in triple mode we hover whichever one the cursor is
+    // closest to (and never both at once).
+    setSplitterHover(splitter1, near1);
+    setSplitterHover(splitter2, near2);
   }
 
   // 鼠标离开 canvas 时恢复默认光标
@@ -554,6 +579,11 @@ function initSingleTripleVideoCompare(panelId) {
     if (!activeSplitter) {
       canvas.style.cursor = 'default';
     }
+    // Always clear hover state on leave — even if a drag is in
+    // progress (the .dragging class will keep the liquid-glass look
+    // alive on the active splitter; .hover would just be redundant).
+    setSplitterHover(splitter1, false);
+    setSplitterHover(splitter2, false);
   }
 
   canvas.addEventListener('mousedown', onPointerDown);

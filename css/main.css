@@ -670,12 +670,24 @@ video {
 }
 
 /* --------------------------------------------------------------------
- * Liquid-glass slider overlay
- * The vertical splitter and the round handle sit ABOVE the canvas as
- * real DOM elements so they can use `backdrop-filter` to refract and
- * blur the video underneath. The SVG filter `#liquid-glass-distortion`
- * (defined in index.html) does the warping; the gradient + highlight
- * give the curved-glass look.
+ * Liquid-glass slider overlay (iOS 26 / WWDC 2025 "Liquid Glass" look)
+ *
+ * The vertical splitter and the round capsule handle sit ABOVE the
+ * canvas as real DOM elements so they can use `backdrop-filter:
+ * url(#…)` to genuinely refract the video underneath.
+ *
+ * IMPORTANT: this matches the look from the liquid-glass skill's
+ * `examples/04-draggable-lens.html` (Technique C — per-pixel SDF
+ * displacement). The displacement filter is built at runtime by
+ * `js/liquid_glass.js`; that script encodes a rounded-rect SDF + a
+ * smoothStep bezel into the R/G channels of an off-screen canvas and
+ * pipes it into <feImage>/<feDisplacementMap>. The CSS below is
+ * deliberately lean — only a faint translucent surface and the
+ * highlight stack — so the *refraction* is the dominant visual cue.
+ *
+ *   - Chromium gets the full curved-glass bend.
+ *   - Safari/Firefox fall back to plain blur+saturate (still polished
+ *     frosted glass) via the @supports block at the bottom.
  * -------------------------------------------------------------------- */
 
 .triple-compare {
@@ -683,225 +695,348 @@ video {
     isolation: isolate;
 }
 
+/* ---- The vertical bar ----
+ *
+ * Two visual states, transitioned smoothly between each other (iOS 26
+ * button-press feel — soft cubic-bezier, ~320 ms):
+ *
+ *   REST  — a thin, light-grey, very-lightly-frosted rule. Just enough
+ *           presence to mark the split position. No SDF refraction, no
+ *           heavy shadow stack — the bar should feel calm.
+ *
+ *   ACTIVE (`.hover`, `.dragging`) — the example-04 liquid-glass pill:
+ *           thicker, near-clear surface, full SDF rim refraction, the
+ *           inset highlight pair + outer drop shadow + dark inset
+ *           crescent on top.
+ *
+ * Both states transition the same set of properties — width,
+ * border-radius, background, box-shadow, border, backdrop-filter — so
+ * the morph reads as one continuous change instead of a jump-cut.
+ *
+ * Why animate `backdrop-filter`? Chromium *does* animate the filter
+ * chain (including the url(...) reference's effective strength via the
+ * surrounding contrast/brightness/saturate), so the SDF lens fades in
+ * organically with the surface change. Safari/Firefox don't animate
+ * url(...) at all, but they also don't render it — they only see the
+ * blur portion of the chain, which transitions cleanly.
+ *
+ * The shared `transition` rule lives on the bare `.glass-splitter`
+ * selector so it applies in both directions (rest → active and back). */
+
+/* === Rest state ============================================== */
 .glass-splitter {
     position: absolute;
-    /* Extend ~10px past the top/bottom of the video frame so the bar
-     * looks like a slim pillar passing through the panel. */
-    top: -10px;
-    bottom: -10px;
-    width: 6px;
+    top: -4px;
+    bottom: -4px;
+    width: 4px;
     /* center the bar on the split position the JS sets via `left:` */
     transform: translateX(-50%);
     /* clicks pass through to the canvas which owns the drag logic */
     pointer-events: none;
     z-index: 5;
-    border-radius: 3px;
-    /* Very faint glass body — barely tinted, mostly transparent. */
-    background:
-        linear-gradient(90deg,
-            rgba(255, 255, 255, 0.16) 0%,
-            rgba(255, 255, 255, 0.04) 50%,
-            rgba(255, 255, 255, 0.16) 100%);
-    /* Real refraction: blur + gentle warping of whatever is behind */
-    -webkit-backdrop-filter: blur(4px) saturate(140%) url(#liquid-glass-distortion);
-    backdrop-filter: blur(4px) saturate(140%) url(#liquid-glass-distortion);
-    /* No outer glow — just a hairline white edge so it still reads as glass. */
+    border-radius: 2px;
+    overflow: hidden; /* clip refraction to the pill silhouette when
+                       * the bar morphs to its active state */
+
+    /* Mid-grey rule — half-opaque so the video underneath still
+     * peeks through, but dark enough to stay legible on bright
+     * frames. The hairline highlights below give it a polished
+     * bezel feel, not a flat painted strip. */
+    background: rgba(110, 115, 125, 0.45);
+
+    /* Light filtering on the peek-through — a touch of saturation
+     * + a hint of darken so the rule keeps its silhouette even on
+     * white-washed frames, without looking heavy. */
+    -webkit-backdrop-filter: blur(2px) saturate(1.1) brightness(0.96);
+    backdrop-filter: blur(2px) saturate(1.1) brightness(0.96);
+
+    /* Hairline white top + soft dark bottom + gentle drop shadow:
+     * reads as a thin floating bezel rather than a painted line. */
     box-shadow:
-        inset 1px 0 0 rgba(255, 255, 255, 0.45),
-        inset -1px 0 0 rgba(255, 255, 255, 0.30);
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    will-change: left, transform, filter;
-    transition: box-shadow 0.18s ease, background 0.18s ease;
+        0 1px 2px rgba(0, 0, 0, 0.22),
+        inset 0  0.5px 0 rgba(255, 255, 255, 0.55),
+        inset 0 -0.5px 0 rgba(0, 0, 0, 0.22);
+    border: none;
+
+    will-change: width, border-radius, background, box-shadow,
+                 border-color, backdrop-filter, transform;
+
+    /* Apple iOS 26 button-press cubic-bezier — soft, slightly springy,
+     * no overshoot. Used for both rest → active and active → rest. */
+    transition:
+        width            320ms cubic-bezier(0.32, 0.72, 0, 1),
+        top              320ms cubic-bezier(0.32, 0.72, 0, 1),
+        bottom           320ms cubic-bezier(0.32, 0.72, 0, 1),
+        border-radius    320ms cubic-bezier(0.32, 0.72, 0, 1),
+        background       320ms cubic-bezier(0.32, 0.72, 0, 1),
+        box-shadow       320ms cubic-bezier(0.32, 0.72, 0, 1),
+        border-color     320ms cubic-bezier(0.32, 0.72, 0, 1),
+        backdrop-filter  320ms cubic-bezier(0.32, 0.72, 0, 1),
+        -webkit-backdrop-filter 320ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-.glass-splitter:hover,
+/* === Active state (cursor near the bar, or actively dragging) ====
+ *
+ * Direct port of the example 04 liquid-glass pill: thick rounded
+ * capsule, SDF rim refraction, full shadow stack. */
+.glass-splitter.hover,
 .glass-splitter.dragging {
-    background:
-        linear-gradient(90deg,
-            rgba(255, 255, 255, 0.28) 0%,
-            rgba(255, 255, 255, 0.10) 50%,
-            rgba(255, 255, 255, 0.28) 100%);
+    top: -8px;
+    bottom: -8px;
+    width: 26px;
+    border-radius: 999px;
+
+    /* Near-clear surface — the SDF refraction is the dominant visual
+     * cue, just like example 04. */
+    background: rgba(255, 255, 255, 0.08);
+
+    /* Same backdrop-filter chain as example 04. The url(#…) reference
+     * is the SDF lens; Chromium animates it cleanly from the rest
+     * state's bare blur+saturate chain. */
+    -webkit-backdrop-filter:
+        url(#liquid-glass-bar) blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1);
+    backdrop-filter:
+        url(#liquid-glass-bar) blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1);
+
+    /* Mirror the example's shadow stack:
+     *   inset top-left highlight + bottom-right rim   → curved bezel
+     *   outer soft drop shadow                         → lifts off video
+     *   inset dark crescent at the top (negative Y)    → underside
+     *                                                    of the bezel,
+     *                                                    "thick glass" cue */
     box-shadow:
-        inset 1px 0 0 rgba(255, 255, 255, 0.7),
-        inset -1px 0 0 rgba(255, 255, 255, 0.5);
+        inset  1px  1px 0 rgba(255, 255, 255, 0.6),
+        inset -1px -1px 0 rgba(255, 255, 255, 0.25),
+        0 4px 10px rgba(0, 0, 0, 0.25),
+        0 -10px 25px inset rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.35);
 }
 
-/* Capsule handle in the middle of the bar.
- *
- * The handle is the user's main affordance, so we lean hard into the
- * "liquid glass" look: a domed, lit lozenge that floats above the video.
- * The illusion is stacked from several layers:
- *
- *   1. A real backdrop-filter blur + saturate + SVG displacement that
- *      genuinely warps the video underneath (this is what makes it
- *      *look* like glass and not just a translucent rect).
- *   2. A multi-stop background that fakes a chromatic edge fringe
- *      (cool blue tint on the left rim, warm peach on the right) —
- *      this is the trick that sells "thick curved glass" the most.
- *   3. A bright crescent specular at the top via ::before, plus a
- *      thin "caustic" pool of light at the bottom via ::after.
- *   4. A layered box-shadow: outer soft drop shadow to lift it off
- *      the video, plus inner rim shadows for thickness.
- * -------------------------------------------------------------------- */
-.glass-handle {
-    position: absolute;
-    /* center on the bar's axis (parent .glass-splitter is 6px wide) */
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    /* Bigger than before so the curvature, rim and specular have room
-     * to actually read on screen. */
-    width: 62px;
-    height: 40px;
-    border-radius: 999px;
-    z-index: 6;
-    cursor: ew-resize;
-    pointer-events: none;
-    /* Layered fills, drawn back-to-front:
-     *   bottom edge soft reflection ┐
-     *   chromatic edge tint         │ — fake refraction at the rim
-     *   top crescent specular       │
-     *   faint body tint             ┘ — keeps the body legible on dark vids */
-    background:
-        /* 1. bright crescent at the top (bigger than ::before so it
-         *    survives even when ::before isn't visible) */
-        radial-gradient(120% 90% at 50% -20%,
-            rgba(255, 255, 255, 0.95) 0%,
-            rgba(255, 255, 255, 0.45) 18%,
-            rgba(255, 255, 255, 0.08) 45%,
-            rgba(255, 255, 255, 0.00) 70%),
-        /* 2. soft glow rising from the bottom — the "caustic pool" */
-        radial-gradient(130% 70% at 50% 115%,
-            rgba(255, 255, 255, 0.40) 0%,
-            rgba(255, 255, 255, 0.10) 35%,
-            rgba(255, 255, 255, 0.00) 65%),
-        /* 3. chromatic edge fringe — cool on the left, warm on the
-         *    right. This is the single most "glassy" cue. */
-        linear-gradient(90deg,
-            rgba(150, 200, 255, 0.55) 0%,
-            rgba(190, 220, 255, 0.18) 18%,
-            rgba(255, 255, 255, 0.04) 50%,
-            rgba(255, 220, 190, 0.18) 82%,
-            rgba(255, 190, 150, 0.55) 100%),
-        /* 4. faint body tint so the capsule keeps a silhouette even
-         *    on bright video frames */
-        linear-gradient(180deg,
-            rgba(255, 255, 255, 0.22) 0%,
-            rgba(255, 255, 255, 0.08) 50%,
-            rgba(255, 255, 255, 0.18) 100%);
-    /* Real refraction — blur + boost saturation + warp. The 14 px blur
-     * and 200 % saturate is what makes whatever is behind look like
-     * it's been seen through a chunky piece of glass. */
-    -webkit-backdrop-filter: blur(14px) saturate(200%) url(#liquid-glass-distortion);
-    backdrop-filter: blur(14px) saturate(200%) url(#liquid-glass-distortion);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    /* Outer: lift it off the video. Inner: rim/thickness cues. */
+/* While actively dragging, push the active state a tiny bit further
+ * for tactile feedback — slightly stronger surface and shadow. */
+.glass-splitter.dragging {
+    background: rgba(255, 255, 255, 0.12);
     box-shadow:
-        /* soft ambient drop shadow */
-        0 8px 22px rgba(0, 0, 0, 0.32),
-        /* tighter contact shadow */
-        0 2px 6px rgba(0, 0, 0, 0.25),
-        /* hairline outer crisp edge */
-        0 0 0 0.5px rgba(0, 0, 0, 0.12),
-        /* bright top rim — strongest highlight */
-        inset 0 2px 1px rgba(255, 255, 255, 0.95),
-        /* darker bottom rim — implies thickness */
-        inset 0 -2px 2px rgba(0, 0, 0, 0.22),
-        /* side rim highlights for the curved-glass cylinder feel */
-        inset 1.5px 0 1px rgba(255, 255, 255, 0.55),
-        inset -1.5px 0 1px rgba(255, 255, 255, 0.55);
-    /* Arrows are kept tightly centered on the bar's axis. */
+        inset  1px  1px 0 rgba(255, 255, 255, 0.85),
+        inset -1px -1px 0 rgba(255, 255, 255, 0.40),
+        0 8px 18px rgba(0, 0, 0, 0.32),
+        0 -12px 28px inset rgba(0, 0, 0, 0.18);
+}
+
+/* ---- The capsule handle ----
+ *
+ * In the current "single thick pill" design we let the .glass-splitter
+ * bar BE the entire liquid-glass element — so the previous inner pill
+ * handle is hidden. Kept in the DOM (created by index.js) only so we
+ * don't have to touch the drag logic. The :hover/.dragging styles on
+ * the splitter cover the active-state visual feedback that used to
+ * live on the handle. */
+.glass-handle {
+    display: none !important;
+}
+
+/* Safari/Firefox fallback: backdrop-filter:url() is Chromium-only.
+ * Without the SVG warp the active state still gets a polished
+ * frosted-glass pill via blur + saturate. The rest state already only
+ * uses blur(2px), which works everywhere — no override needed. */
+@supports not (backdrop-filter: url(#liquid-glass-bar)) {
+    .glass-splitter.hover,
+    .glass-splitter.dragging {
+        backdrop-filter: blur(10px) saturate(1.7) brightness(1.04);
+        -webkit-backdrop-filter: blur(10px) saturate(1.7) brightness(1.04);
+        background: rgba(255, 255, 255, 0.16);
+    }
+}
+
+/* --------------------------------------------------------------------
+ * Liquid-glass scrub slider (used by the Interactive 3D Animation
+ * panel's playback control row)
+ *
+ * The widget is a 4-element overlay:
+ *   .glass-slider              — flex container, defines width
+ *     .glass-slider-track      — frosted rounded-rect background bar
+ *       .glass-slider-fill     — filled portion left of the thumb
+ *     .glass-slider-thumb      — circular SDF lens (the bauble)
+ *     <input type="range">     — laid over the whole thing, opacity:0,
+ *                                gets input events so the browser does
+ *                                keyboard/drag handling for free.
+ *
+ * The thumb's position and the fill width are driven by a CSS custom
+ * property `--pos` (0..1) that the inline JS in index.html sets every
+ * frame from the input value (see syncSlider() there).
+ *
+ * The thumb refraction uses #liquid-glass-thumb (built by
+ * js/liquid_glass.js with a circle SDF — see thumbFragment there).
+ * -------------------------------------------------------------------- */
+
+.glass-slider {
+    --pos: 0;
+    --thumb-size: 28px;
+    --track-h: 10px;
+
+    position: relative;
+    flex: 1 1 auto;
+    /* Made significantly longer than the previous bare <input>'s
+     * 200 px minimum so the bar reads as a proper scrub track. */
+    min-width: 360px;
+    height: var(--thumb-size);
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 0;
-    color: #1b3a6b;
-    will-change: left, transform, filter;
-    transition: transform 0.18s ease, box-shadow 0.22s ease, background 0.22s ease;
+    user-select: none;
 }
 
-.glass-handle::before {
-    /* Sharp specular crescent — looks like a curved studio light hitting
-     * the top of the dome. Slight blur softens the lower edge. */
-    content: '';
+.glass-slider-track {
     position: absolute;
-    top: 3px;
-    left: 7px;
-    right: 7px;
-    height: 52%;
-    /* Asymmetric radii give the highlight a "lensed" shape rather than
-     * a generic pill — wide at the top, narrower at the bottom. */
-    border-radius: 999px 999px 60% 60% / 999px 999px 100% 100%;
-    background: linear-gradient(180deg,
-        rgba(255, 255, 255, 0.92) 0%,
-        rgba(255, 255, 255, 0.55) 25%,
-        rgba(255, 255, 255, 0.10) 65%,
-        rgba(255, 255, 255, 0.00) 100%);
-    filter: blur(0.4px);
-    pointer-events: none;
-}
-
-.glass-handle::after {
-    /* "Caustic" — a thin pool of light along the bottom of the lens,
-     * as if light bent through the glass and re-converged below. */
-    content: '';
-    position: absolute;
-    left: 14%;
-    right: 14%;
-    bottom: 3px;
-    height: 22%;
+    top: 50%;
+    left: 0; right: 0;
+    height: var(--track-h);
+    transform: translateY(-50%);
     border-radius: 999px;
-    background: linear-gradient(180deg,
-        rgba(255, 255, 255, 0.00) 0%,
-        rgba(255, 255, 255, 0.55) 100%);
-    filter: blur(1.2px);
-    pointer-events: none;
-}
-
-.glass-handle:hover,
-.glass-handle.dragging {
-    /* Slight pop + a stronger lift to telegraph the active state */
-    transform: translate(-50%, -50%) scale(1.08);
+    overflow: hidden;
+    /* Frosted track — pale tint, hairline highlights. The thicker
+     * bar gets a slightly stronger top/bottom edge to keep its
+     * polished bezel feel. */
+    background: rgba(0, 0, 0, 0.10);
     box-shadow:
-        0 12px 30px rgba(0, 0, 0, 0.40),
-        0 3px 8px rgba(0, 0, 0, 0.30),
-        0 0 0 0.5px rgba(0, 0, 0, 0.14),
-        inset 0 2px 1px rgba(255, 255, 255, 1.0),
-        inset 0 -2px 2px rgba(0, 0, 0, 0.26),
-        inset 1.5px 0 1px rgba(255, 255, 255, 0.7),
-        inset -1.5px 0 1px rgba(255, 255, 255, 0.7);
+        inset 0  1px 0 rgba(255, 255, 255, 0.65),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.20);
 }
 
-.glass-handle .arrow {
-    /* A bit larger to match the bigger capsule. Two stacked borders
-     * (white over dark) so the arrow stays readable on either light
-     * or dark video content underneath the glass. */
-    width: 9px;
-    height: 9px;
-    border-top: 2px solid rgba(255, 255, 255, 0.95);
-    border-left: 2px solid rgba(255, 255, 255, 0.95);
-    transform: rotate(-45deg);
-    opacity: 0.95;
-    /* drop-shadow gives the arrow a dark outline so it pops on light
-     * video too — without a second DOM element. */
-    filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.55))
-            drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
-    /* z-index so the arrows sit above ::before/::after */
-    position: relative;
-    z-index: 1;
+.glass-slider-fill {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 0;
+    /* Width follows the input value. */
+    width: calc(var(--pos) * 100%);
+    /* Flat iOS-blue fill (rgb(30, 110, 244)) — clean, constant color
+     * matches the rest of the page's blue accents. */
+    background: rgb(30, 110, 244);
+    border-radius: 999px 0 0 999px;
 }
 
-.glass-handle .arrow.right {
-    transform: rotate(135deg);
+.glass-slider-thumb {
+    position: absolute;
+    top: 50%;
+    /* Center the bauble on the current pos. We translate by half its
+     * own width so the centerline tracks `--pos` precisely. */
+    left: calc(var(--pos) * 100%);
+    transform: translate(-50%, -50%);
+
+    /* === Rest state =========================================== */
+    /* Small grey-tinted pill — slightly wider than the 10 px track
+     * so it's clearly visible as a draggable handle, but calm: no
+     * SDF refraction, just a soft frost and a hairline highlight.
+     * Same idea as the splitter's rest state. */
+    width:  16px;
+    height: 14px;
+    border-radius: 999px;
+    pointer-events: none; /* the input handles input */
+
+    background: rgba(110, 115, 125, 0.55);
+
+    -webkit-backdrop-filter: blur(2px) saturate(1.1) brightness(0.96);
+    backdrop-filter:         blur(2px) saturate(1.1) brightness(0.96);
+
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.22),
+        inset 0  0.5px 0 rgba(255, 255, 255, 0.65),
+        inset 0 -0.5px 0 rgba(0, 0, 0, 0.20);
+    border: none;
+
+    /* Same iOS-26 morph easing & duration as the splitter: width,
+     * height, border-radius, surface, shadows and the filter chain
+     * all transition together so the rest → active state reads as
+     * one continuous change. */
+    will-change: width, height, border-radius, background,
+                 box-shadow, border-color, backdrop-filter, transform;
+    transition:
+        width            320ms cubic-bezier(0.32, 0.72, 0, 1),
+        height           320ms cubic-bezier(0.32, 0.72, 0, 1),
+        border-radius    320ms cubic-bezier(0.32, 0.72, 0, 1),
+        background       320ms cubic-bezier(0.32, 0.72, 0, 1),
+        box-shadow       320ms cubic-bezier(0.32, 0.72, 0, 1),
+        border-color     320ms cubic-bezier(0.32, 0.72, 0, 1),
+        backdrop-filter  320ms cubic-bezier(0.32, 0.72, 0, 1),
+        -webkit-backdrop-filter 320ms cubic-bezier(0.32, 0.72, 0, 1),
+        transform        200ms cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-/* Firefox fallback: backdrop-filter:url() not supported in some versions.
- * Without the SVG warp we still get a frosted-glass look. */
-@supports not (backdrop-filter: url(#liquid-glass-distortion)) {
-    .glass-splitter,
-    .glass-handle {
-        backdrop-filter: blur(8px) saturate(160%);
-        -webkit-backdrop-filter: blur(8px) saturate(160%);
+/* === Active state ===========================================
+ *
+ * The example-04 circular liquid-glass dome — full SDF rim
+ * refraction, near-clear surface, the curved-bezel shadow stack.
+ * Triggered when:
+ *   - the cursor hovers the slider widget, or
+ *   - the input has focus (keyboard scrub), or
+ *   - the user is actively dragging (.dragging is set by the inline
+ *     JS on pointerdown — see index.html).
+ * The .dragging variant is what keeps the active state pinned even
+ * when the user's cursor strays outside the widget mid-drag. */
+.glass-slider:hover         .glass-slider-thumb,
+.glass-slider:focus-within  .glass-slider-thumb,
+.glass-slider.dragging      .glass-slider-thumb {
+    width:  28px;
+    height: 28px;
+    border-radius: 50%;
+
+    /* Near-clear translucent surface — let the SDF lens carry the
+     * look (same recipe as the splitter pill's active state). */
+    background: rgba(255, 255, 255, 0.10);
+
+    -webkit-backdrop-filter:
+        url(#liquid-glass-thumb) blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1);
+    backdrop-filter:
+        url(#liquid-glass-thumb) blur(0.25px) contrast(1.2) brightness(1.05) saturate(1.1);
+
+    /* Same example-04 shadow stack as the splitter pill, reused here
+     * to make the bauble feel like a real spherical glass dome. */
+    box-shadow:
+        inset  1px  1px 0 rgba(255, 255, 255, 0.70),
+        inset -1px -1px 0 rgba(255, 255, 255, 0.30),
+        0 4px 10px rgba(0, 0, 0, 0.22),
+        0 -8px 20px inset rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+/* During an active drag, push the active state a touch further for
+ * tactile feedback — slightly stronger surface and shadow, and a
+ * subtle scale-up. Mirrors the splitter's .dragging tweak. */
+.glass-slider.dragging .glass-slider-thumb {
+    transform: translate(-50%, -50%) scale(1.08);
+    background: rgba(255, 255, 255, 0.16);
+    box-shadow:
+        inset  1px  1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(255, 255, 255, 0.45),
+        0 8px 18px rgba(0, 0, 0, 0.28),
+        0 -10px 24px inset rgba(0, 0, 0, 0.16);
+}
+
+/* The native input is invisible but receives all input events. We
+ * make it cover the whole widget (including the thumb area) so
+ * pointer-down anywhere on the track jumps the thumb there. */
+.glass-slider input[type="range"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    opacity: 0;        /* invisible — the visual layers are above */
+    z-index: 2;
+}
+.glass-slider input[type="range"]:focus { outline: none; }
+
+/* Safari/Firefox fallback for the thumb: same graceful
+ * degradation as the splitter — frosted disc instead of true
+ * curved-glass refraction. */
+@supports not (backdrop-filter: url(#liquid-glass-thumb)) {
+    .glass-slider-thumb {
+        backdrop-filter: blur(8px) saturate(1.5) brightness(1.04);
+        -webkit-backdrop-filter: blur(8px) saturate(1.5) brightness(1.04);
+        background: rgba(255, 255, 255, 0.20);
     }
 }

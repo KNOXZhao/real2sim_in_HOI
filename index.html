@@ -29,6 +29,7 @@
     <script src="js/bulma-carousel.min.js"></script>
     <script src="js/bulma-slider.min.js"></script>
     <script src="js/index.js"></script>
+    <script src="js/liquid_glass.js"></script>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
   </head>
 
@@ -108,19 +109,134 @@
       <div class="row">
         <div class="col-12 text-center">
           <div class="x-section-title"><div class="x-gradient-font">Interactive 3D Animation</div></div>
-          <p style="margin-bottom: 16px;">Drag to orbit, scroll / pinch to zoom. Use the controls below the viewer to play, pause, and scrub the animation.</p>
+          <p style="margin-bottom: 16px;">Drag to orbit, scroll / pinch to zoom. Use the controls below the viewer to play, pause, scrub, and change playback speed.</p>
           <model-viewer
+            id="mv-chair"
             src="animation/chair_lift.glb"
             alt="HA-HOI chair lift animation"
             autoplay
-            animation-name=""
             camera-controls
             touch-action="pan-y"
             shadow-intensity="1"
-            exposure="1"
-            interaction-prompt="auto"
+            exposure="0.7"
+            interaction-prompt="none"
+            camera-orbit="-90deg 80deg 160%"
+            min-camera-orbit="auto auto 0%"
+            max-camera-orbit="auto auto 800%"
             style="width: 95%; height: 600px; max-width: 100%; background: #f5f5f7; border-radius: 12px;">
           </model-viewer>
+
+          <div id="mv-chair-controls" style="width: 95%; max-width: 100%; margin: 12px auto 0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; font-size: 14px;">
+            <button type="button" id="mv-chair-playpause" style="padding: 6px 16px; border: 1px solid #ccc; background: #fff; border-radius: 6px; cursor: pointer; min-width: 72px;">Pause</button>
+
+            <!-- Liquid-glass scrub slider.
+                 The visible track / fill / thumb are real DOM elements
+                 styled in css/main.css; the <input type=range> is laid
+                 over the top transparently so the browser still does
+                 keyboard / drag handling for free. The inline JS below
+                 calls syncSlider() on every value change so the visual
+                 elements track the numeric value. -->
+            <div class="glass-slider" id="mv-chair-scrub-slider">
+              <div class="glass-slider-track">
+                <div class="glass-slider-fill"></div>
+              </div>
+              <div class="glass-slider-thumb"></div>
+              <input type="range" id="mv-chair-scrub" min="0" max="1000" value="0" step="1" aria-label="Playback position">
+            </div>
+
+            <span id="mv-chair-time" style="font-variant-numeric: tabular-nums; min-width: 90px;">0.00 / 0.00s</span>
+            <label style="display: inline-flex; align-items: center; gap: 6px;">
+              Speed
+              <select id="mv-chair-speed" style="padding: 4px 8px; border: 1px solid #ccc; border-radius: 6px; background: #fff;">
+                <option value="0.25">0.25x</option>
+                <option value="0.5">0.5x</option>
+                <option value="1" selected>1x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+                <option value="4">4x</option>
+              </select>
+            </label>
+          </div>
+
+          <script>
+            (function () {
+              const mv = document.getElementById('mv-chair');
+              const playBtn = document.getElementById('mv-chair-playpause');
+              const scrub = document.getElementById('mv-chair-scrub');
+              const sliderRoot = document.getElementById('mv-chair-scrub-slider');
+              const fillEl  = sliderRoot.querySelector('.glass-slider-fill');
+              const thumbEl = sliderRoot.querySelector('.glass-slider-thumb');
+              const timeLabel = document.getElementById('mv-chair-time');
+              const speedSel = document.getElementById('mv-chair-speed');
+              let scrubbing = false;
+
+              function fmt(t) { return (t || 0).toFixed(2); }
+
+              // Push the input's value through to the visual elements.
+              // We compute a CSS variable --pos in [0..1]; CSS uses it
+              // to size the fill bar and position the thumb.
+              function syncSlider() {
+                const min = parseFloat(scrub.min) || 0;
+                const max = parseFloat(scrub.max) || 1;
+                const cur = parseFloat(scrub.value) || 0;
+                const pos = max > min ? (cur - min) / (max - min) : 0;
+                sliderRoot.style.setProperty('--pos', String(pos));
+              }
+
+              function updateUI() {
+                const dur = mv.duration || 0;
+                const cur = mv.currentTime || 0;
+                if (!scrubbing && dur > 0) {
+                  scrub.value = String(Math.round((cur / dur) * 1000));
+                }
+                syncSlider();
+                timeLabel.textContent = fmt(cur) + ' / ' + fmt(dur) + 's';
+                playBtn.textContent = mv.paused ? 'Play' : 'Pause';
+              }
+
+              mv.addEventListener('load', () => {
+                mv.timeScale = parseFloat(speedSel.value);
+                updateUI();
+              });
+
+              playBtn.addEventListener('click', () => {
+                if (mv.paused) { mv.play(); } else { mv.pause(); }
+                updateUI();
+              });
+
+              scrub.addEventListener('input', () => {
+                scrubbing = true;
+                syncSlider();
+                const dur = mv.duration || 0;
+                if (dur > 0) {
+                  mv.currentTime = (parseInt(scrub.value, 10) / 1000) * dur;
+                  timeLabel.textContent = fmt(mv.currentTime) + ' / ' + fmt(dur) + 's';
+                }
+              });
+              scrub.addEventListener('change', () => { scrubbing = false; });
+
+              // Track the active-drag state so the thumb's liquid-glass
+              // styling stays on while the user holds the button — even
+              // if their cursor leaves the widget mid-drag (which would
+              // otherwise drop the :hover state). Same idea as the
+              // .dragging class on .glass-splitter.
+              scrub.addEventListener('pointerdown', () => {
+                sliderRoot.classList.add('dragging');
+              });
+              const releaseDrag = () => sliderRoot.classList.remove('dragging');
+              scrub.addEventListener('pointerup',     releaseDrag);
+              scrub.addEventListener('pointercancel', releaseDrag);
+              window.addEventListener('pointerup',    releaseDrag);
+
+              speedSel.addEventListener('change', () => {
+                mv.timeScale = parseFloat(speedSel.value);
+              });
+
+              // poll for currentTime since model-viewer doesn't emit per-frame events
+              function tick() { updateUI(); requestAnimationFrame(tick); }
+              requestAnimationFrame(tick);
+            })();
+          </script>
         </div>
       </div>
     </div>
@@ -141,19 +257,20 @@
             <span>Drag the glowing split line(s) left / right to compare methods</span>
           </div>
 
-          <!-- Hidden SVG filter used by the liquid-glass slider overlays.
-               feTurbulence makes a noise field, feGaussianBlur softens it,
-               feDisplacementMap warps whatever is underneath the glass div.
-               Keep `scale` small (a few px) — large values smear the video
-               into streaks instead of giving a curved-glass refraction. -->
+          <!-- Hidden SVG host for the liquid-glass overlays.
+               The pill handle uses Technique B (Apple-style "Liquid Glass"):
+               a layered gradient *displacement map* (built once in JS as an
+               inline SVG and embedded via feImage) is consumed by
+               feDisplacementMap, which bends the video underneath at the
+               rim like thick curved glass. The handle filter
+               (#liquid-glass-handle) is generated at runtime by
+               js/liquid_glass.js so it tracks the handle's actual rendered
+               size — see that file for the math. The thin vertical splitter
+               (#liquid-glass-bar) uses a much smaller, soft displacement
+               map; at 6 px wide, real edge refraction is barely visible
+               and we lean on backdrop-filter blur + saturate instead. -->
           <svg width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
-            <defs>
-              <filter id="liquid-glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
-                <feTurbulence type="fractalNoise" baseFrequency="0.008 0.014" numOctaves="2" seed="7" result="noise"/>
-                <feGaussianBlur in="noise" stdDeviation="3" result="softNoise"/>
-                <feDisplacementMap in="SourceGraphic" in2="softNoise" scale="8" xChannelSelector="R" yChannelSelector="G"/>
-              </filter>
-            </defs>
+            <defs id="liquid-glass-defs"></defs>
           </svg>
 
           <div class="compare-grid">
