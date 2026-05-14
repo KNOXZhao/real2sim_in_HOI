@@ -545,30 +545,11 @@ video {
  * Qualitative-comparison grid layout (HOI retarget)
  * -------------------------------------------------------------------- */
 
-/* Slider-hint banner above the grid */
-.slider-hint {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0 auto 24px auto;
-    padding: 10px 18px;
-    font-size: 18px;
-    font-weight: 600;
-    color: #1b3a6b;
-    background: linear-gradient(107.54deg, rgba(220, 238, 255, 0.65) .39%, rgba(245, 250, 255, 0.85) 51.23%, rgba(200, 226, 255, 0.65) 100%);
-    border: 1px solid rgba(120, 180, 255, 0.45);
-    border-radius: 999px;
-    box-shadow: 0 2px 10px rgba(120, 180, 255, 0.35), inset 0 1px 0 rgba(255,255,255,0.7);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-}
-
-.slider-hint-icon {
-    width: 26px;
-    height: 26px;
-    fill: #4a8fe0;
-    flex-shrink: 0;
-}
+/* Slider-hint banner above the grid — REMOVED.
+ * The qualitative-results section now uses a plain <p> matching the
+ * Interactive 3D Animation hint, so the styled banner + svg icon
+ * are gone. Selectors kept removed (not just unused) so they can't
+ * accidentally re-engage if someone re-adds the markup later. */
 
 /* Grid of comparison cells */
 .compare-grid {
@@ -659,10 +640,6 @@ video {
     .compare-cell {
         width: min(720px, 95%);
         flex: 0 0 auto;
-    }
-    .slider-hint {
-        font-size: 16px;
-        padding: 8px 14px;
     }
     .compare-cell .prompt-text {
         font-size: 18px;
