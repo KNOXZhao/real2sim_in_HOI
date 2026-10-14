@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Real2Sim in HOI: Toward Physically Plausible HOI Reconstruction from Monocular Videos</title>
+    <title>Real2Sim in HOI: Toward Physically Plausible HOI Reconstruction from Monocular Videos | NeurIPS 2026 Poster</title>
     <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
 
     <link rel="stylesheet" href="css/bootstrap-4.4.1.css">
@@ -33,18 +33,30 @@
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
   </head>
 
+  <body class="paper-page">
+  <div class="container">
+    <div class="paper-masthead">
+      <span class="paper-wordmark">HA-HOI</span>
+      <span>NeurIPS 2026</span>
+    </div>
+  </div>
+
   <!-- cover -->
   <section>
-    <div class="jumbotron text-center mt-0">
+    <div class="jumbotron paper-header text-center mt-0">
       <div class="container">
         <div class="row">
           <div class="col-12">
-            <h2><b><span class="x-gradient-font">Real2Sim in HOI:</span> Toward Physically Plausible HOI Reconstruction from Monocular Videos</b></h2>
+            <div id="conference">NeurIPS 2026 &middot; Poster</div>
+            <h1 class="paper-title">
+              <span class="paper-title-name">Real2Sim in HOI</span>
+              <span class="paper-title-description">Toward Physically Plausible HOI Reconstruction from Monocular Videos</span>
+            </h1>
           </div>
         </div>
         <div class="row">
           <div class="col-12">
-            <div id="authors" style="flex-wrap: nowrap; white-space: nowrap;">
+            <div id="authors">
               <div>Yubo Zhao<sup>1,2</sup></div>
               <div>Yujin Chai<sup>2</sup></div>
               <div>Yunao Dong<sup>1</sup></div>
@@ -55,11 +67,14 @@
             </div>
             <div class="institution">
               <div><sup>1</sup>The Hong Kong University of Science and Technology</div>
-              <div><sup>2</sup>Tencent VISVISE</div>
+              <div><sup>2</sup>Tencent Motus AI Team</div>
             </div>
             <div class="author-notes">
               <div><sup>&dagger;</sup>Project lead</div>
               <div><sup>&Dagger;</sup>Corresponding author</div>
+            </div>
+            <div class="mt-3">
+              <a class="paper-link" href="https://arxiv.org/abs/2605.14462" target="_blank" rel="noopener noreferrer">arXiv <span aria-hidden="true">&nearr;</span></a>
             </div>
           </div>
         </div>
@@ -79,14 +94,17 @@
   </section>
 
   <!-- abstract -->
-  <section>
+  <section class="paper-section">
     <div class="container">
       <div class="row">
         <div class="col-12 text-center">
-          <div id="abstract" class="x-gradient-block">
+          <div id="abstract">
+            <h2 class="x-section-title">Abstract</h2>
+            <div class="abstract-copy">
             <p>Recovering 4D human-object interaction (HOI) from monocular video is a key step toward scalable 3D content creation, embodied AI, and simulation-based learning. Recent methods can reconstruct temporally coherent human and object trajectories, but these trajectories often remain visual artifacts while failing to preserve stable contact, functional manipulation, or physical plausibility when used as reference motions for humanoid-object simulation. This reveals a fundamental interaction gap: HOI reconstruction should not stop at tracking a human and an object, but should recover the relation that makes their motion a coherent interaction.</p>
-            <p>We introduce <i>HA-HOI</i>, a framework for reconstructing physically plausible 4D HOI animation from in-the-wild monocular videos. Instead of treating the human and object as independent entities in an ambiguous monocular 3D space, we propose a <em>human-first, object-follow</em> formulation. The human motion is recovered as the interaction anchor, and the object is reconstructed, aligned, and refined relative to the human action. The resulting kinematic trajectory is then projected into a physics-based humanoid-object simulation, where it acts as a teacher trajectory for stable physical rollout.</p>
-            <p>Across benchmark and in-the-wild videos, <i>HA-HOI</i> improves human-object alignment, contact consistency, temporal stability, and simulation readiness over prior monocular HOI reconstruction methods. By moving beyond visually plausible trajectory recovery toward physically grounded interaction animation, our work takes a step toward turning general monocular HOI videos into scalable demonstrations for humanoid-object behavior.</p>
+            <p>We introduce <strong>HA-HOI</strong>, a framework for reconstructing physically plausible 4D HOI animation from in-the-wild monocular videos. Instead of treating the human and object as independent entities in an ambiguous monocular 3D space, we propose a <em>human-first, object-follow</em> formulation. The human motion is recovered as the interaction anchor, and the object is reconstructed, aligned, and refined relative to the human action. The resulting kinematic trajectory is then projected into a physics-based humanoid-object simulation, where it acts as a teacher trajectory for stable physical rollout.</p>
+            <p>Across benchmark and in-the-wild videos, <strong>HA-HOI</strong> improves human-object alignment, contact consistency, temporal stability, and simulation readiness over prior monocular HOI reconstruction methods. By moving beyond visually plausible trajectory recovery toward physically grounded interaction animation, our work takes a step toward turning general monocular HOI videos into scalable demonstrations for humanoid-object behavior.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -94,11 +112,11 @@
   </section>
 
   <!-- pipeline -->
-  <section>
+  <section class="paper-section">
     <div class="container">
       <div class="row">
         <div class="col-12 text-center">
-          <div class="x-section-title"><div class="x-gradient-font">Pipeline</div></div>
+          <h2 class="x-section-title">Pipeline</h2>
           <img src="images/pipeline.png" width="95%">
         </div>
       </div>
@@ -106,12 +124,12 @@
   </section>
 
   <!-- interactive 3D animation -->
-  <section>
+  <section class="paper-section">
     <div class="container">
       <div class="row">
         <div class="col-12 text-center">
-          <div class="x-section-title"><div class="x-gradient-font">Interactive 3D Animation</div></div>
-          <p style="margin-bottom: 16px;">Drag to orbit, scroll / pinch to zoom. Use the controls below the viewer to play, pause, scrub, and change playback speed.</p>
+          <h2 class="x-section-title">Interactive 3D Animation</h2>
+          <p class="section-intro" style="margin-bottom: 16px;">Drag to orbit, scroll / pinch to zoom. Use the controls below the viewer to play, pause, scrub, and change playback speed.</p>
           <model-viewer
             id="mv-chair"
             src="animation/chair_lift.glb"
@@ -266,13 +284,13 @@
   </section>
 
   <!-- Qualitative results (draggable overlay) -->
-  <section class="hero" style="padding-bottom: 64px;">
+  <section class="hero paper-section" style="padding-bottom: 64px;">
     <div class="container">
       <div class="row">
         <div class="col-12 text-center">
-          <div class="x-section-title"><div class="x-gradient-font">Qualitative Results</div></div>
+          <h2 class="x-section-title">Qualitative Results</h2>
 
-          <p style="margin-bottom: 16px;">Drag the split line(s) left / right to compare methods.</p>
+          <p class="section-intro" style="margin-bottom: 16px;">Drag the split line(s) left / right to compare methods.</p>
 
           <!-- Hidden SVG host for the liquid-glass overlays.
                The pill handle uses Technique B (Apple-style "Liquid Glass"):
@@ -296,7 +314,7 @@
             <div class="compare-row">
               <!-- Panel 1: Teaser_1 (triple, aspect 16:9) -->
               <div id="video-comparison-panel-1" class="comparison-panel compare-cell" data-compare-type="triple" style="--ar: 1.778;">
-                <div class="comparison-prompt-box"><div class="prompt-text">Cart push</div></div>
+                <div class="comparison-prompt-box"><h3 class="prompt-text">Cart push</h3></div>
                 <div class="triple-compare" id="video-triple-compare-1">
                   <canvas id="video-triple-canvas-1"></canvas>
                   <video id="video-compare-1-1" autoplay muted loop playsinline><source src="video/Teaser_1/Ours.mp4" type="video/mp4"></video>
@@ -304,23 +322,23 @@
                   <video id="video-compare-1-3" autoplay muted loop playsinline><source src="video/Teaser_1/CARI4D.mp4" type="video/mp4"></video>
                 </div>
                 <div class="triple-compare-labels">
-                  <div class="triple-label triple-label-left">👈 Ours</div>
-                  <div class="triple-label triple-label-center">Input Video</div>
-                  <div class="triple-label triple-label-right">CARI4D 👉</div>
+                  <div class="triple-label triple-label-left method-ours">Ours</div>
+                  <div class="triple-label triple-label-center">Input video</div>
+                  <div class="triple-label triple-label-right">CARI4D</div>
                 </div>
               </div>
 
               <!-- Panel 2: Teaser_2 (dual, aspect 1:1) -->
               <div id="video-comparison-panel-2" class="comparison-panel compare-cell" data-compare-type="dual" style="--ar: 1.0;">
-                <div class="comparison-prompt-box"><div class="prompt-text">Squat</div></div>
+                <div class="comparison-prompt-box"><h3 class="prompt-text">Squat</h3></div>
                 <div class="triple-compare" id="video-triple-compare-2">
                   <canvas id="video-triple-canvas-2"></canvas>
                   <video id="video-compare-2-1" autoplay muted loop playsinline><source src="video/Teaser_2/Video.mp4" type="video/mp4"></video>
                   <video id="video-compare-2-2" autoplay muted loop playsinline><source src="video/Teaser_2/Ours.mp4" type="video/mp4"></video>
                 </div>
                 <div class="triple-compare-labels">
-                  <div class="triple-label triple-label-left">👈 Input Video</div>
-                  <div class="triple-label triple-label-right">Ours 👉</div>
+                  <div class="triple-label triple-label-left">Input video</div>
+                  <div class="triple-label triple-label-right method-ours">Ours</div>
                 </div>
               </div>
             </div>
@@ -329,7 +347,7 @@
             <div class="compare-row">
               <!-- Panel 3: Fig1_1 (triple, aspect 4:3) -->
               <div id="video-comparison-panel-3" class="comparison-panel compare-cell" data-compare-type="triple" style="--ar: 1.333;">
-                <div class="comparison-prompt-box"><div class="prompt-text">Chair lift</div></div>
+                <div class="comparison-prompt-box"><h3 class="prompt-text">Chair lift</h3></div>
                 <div class="triple-compare" id="video-triple-compare-3">
                   <canvas id="video-triple-canvas-3"></canvas>
                   <video id="video-compare-3-1" autoplay muted loop playsinline><source src="video/Fig1_1/Ours.mp4" type="video/mp4"></video>
@@ -337,15 +355,15 @@
                   <video id="video-compare-3-3" autoplay muted loop playsinline><source src="video/Fig1_1/CARI4D.mp4" type="video/mp4"></video>
                 </div>
                 <div class="triple-compare-labels">
-                  <div class="triple-label triple-label-left">👈 Ours</div>
-                  <div class="triple-label triple-label-center">Input Video</div>
-                  <div class="triple-label triple-label-right">CARI4D 👉</div>
+                  <div class="triple-label triple-label-left method-ours">Ours</div>
+                  <div class="triple-label triple-label-center">Input video</div>
+                  <div class="triple-label triple-label-right">CARI4D</div>
                 </div>
               </div>
 
               <!-- Panel 4: Fig1_2 (triple, aspect 4:3) -->
               <div id="video-comparison-panel-4" class="comparison-panel compare-cell" data-compare-type="triple" style="--ar: 1.333;">
-                <div class="comparison-prompt-box"><div class="prompt-text">Table lift</div></div>
+                <div class="comparison-prompt-box"><h3 class="prompt-text">Table lift</h3></div>
                 <div class="triple-compare" id="video-triple-compare-4">
                   <canvas id="video-triple-canvas-4"></canvas>
                   <video id="video-compare-4-1" autoplay muted loop playsinline><source src="video/Fig1_2/Ours.mp4" type="video/mp4"></video>
@@ -353,9 +371,9 @@
                   <video id="video-compare-4-3" autoplay muted loop playsinline><source src="video/Fig1_2/CARI4D.mp4" type="video/mp4"></video>
                 </div>
                 <div class="triple-compare-labels">
-                  <div class="triple-label triple-label-left">👈 Ours</div>
-                  <div class="triple-label triple-label-center">Input Video</div>
-                  <div class="triple-label triple-label-right">CARI4D 👉</div>
+                  <div class="triple-label triple-label-left method-ours">Ours</div>
+                  <div class="triple-label triple-label-center">Input video</div>
+                  <div class="triple-label triple-label-right">CARI4D</div>
                 </div>
               </div>
             </div>
@@ -364,7 +382,7 @@
             <div class="compare-row">
               <!-- Panel 5: Fig1_3 (triple, aspect 9:16 portrait) -->
               <div id="video-comparison-panel-5" class="comparison-panel compare-cell" data-compare-type="triple" style="--ar: 0.5625;">
-                <div class="comparison-prompt-box"><div class="prompt-text">Snatch</div></div>
+                <div class="comparison-prompt-box"><h3 class="prompt-text">Snatch</h3></div>
                 <div class="triple-compare" id="video-triple-compare-5">
                   <canvas id="video-triple-canvas-5"></canvas>
                   <video id="video-compare-5-1" autoplay muted loop playsinline><source src="video/Fig1_3/Ours.mp4" type="video/mp4"></video>
@@ -372,23 +390,23 @@
                   <video id="video-compare-5-3" autoplay muted loop playsinline><source src="video/Fig1_3/CARI4D.mp4" type="video/mp4"></video>
                 </div>
                 <div class="triple-compare-labels">
-                  <div class="triple-label triple-label-left">👈 Ours</div>
-                  <div class="triple-label triple-label-center">Input Video</div>
-                  <div class="triple-label triple-label-right">CARI4D 👉</div>
+                  <div class="triple-label triple-label-left method-ours">Ours</div>
+                  <div class="triple-label triple-label-center">Input video</div>
+                  <div class="triple-label triple-label-right">CARI4D</div>
                 </div>
               </div>
 
               <!-- Panel 6: Appendix_1 (dual, aspect ~16:10) -->
               <div id="video-comparison-panel-6" class="comparison-panel compare-cell" data-compare-type="dual" style="--ar: 1.622;">
-                <div class="comparison-prompt-box"><div class="prompt-text">Ball hold</div></div>
+                <div class="comparison-prompt-box"><h3 class="prompt-text">Ball hold</h3></div>
                 <div class="triple-compare" id="video-triple-compare-6">
                   <canvas id="video-triple-canvas-6"></canvas>
                   <video id="video-compare-6-1" autoplay muted loop playsinline><source src="video/Appendix_1/Video.mp4" type="video/mp4"></video>
                   <video id="video-compare-6-2" autoplay muted loop playsinline><source src="video/Appendix_1/Ours.mp4" type="video/mp4"></video>
                 </div>
                 <div class="triple-compare-labels">
-                  <div class="triple-label triple-label-left">👈 Input Video</div>
-                  <div class="triple-label triple-label-right">Ours 👉</div>
+                  <div class="triple-label triple-label-left">Input video</div>
+                  <div class="triple-label triple-label-right method-ours">Ours</div>
                 </div>
               </div>
             </div>
@@ -407,4 +425,5 @@
   </div>
   </section>
 
+  </body>
 </html>
